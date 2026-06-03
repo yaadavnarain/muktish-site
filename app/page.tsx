@@ -1,11 +1,13 @@
-import { Reveal } from "@/components/motion-primitives";
+import { SiteHeader } from "@/components/site-header";
+import { Hero } from "@/components/hero";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-bg text-ink">
-      <Reveal>
-        <h1 className="heading text-3xl p-12">Muktish — coming together…</h1>
-      </Reveal>
-    </main>
+    <>
+      <SiteHeader />
+      <main>
+        <Hero />
+      </main>
+    </>
   );
 }
