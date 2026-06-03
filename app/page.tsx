@@ -8,10 +8,13 @@ import { StorySection } from "@/components/story-section";
 import { Testimonials } from "@/components/testimonials";
 import { PartnerSection } from "@/components/partner-section";
 import { FloatingCTA } from "@/components/floating-cta";
+import { SiteFooter } from "@/components/site-footer";
+import { Ambience } from "@/components/ambience";
 
 export default function Home() {
   return (
     <>
+      <Ambience />
       <SiteHeader />
       <main>
         <Hero />
@@ -24,9 +27,10 @@ export default function Home() {
         <StorySection />
         <Testimonials />
         <PartnerSection />
-        {/* Footer sentinel — floating CTA hides once this enters view. */}
-        <div data-footer-start aria-hidden className="h-px w-full" />
       </main>
+      {/* Floating CTA hides once the footer enters view. */}
+      <div data-footer-start aria-hidden className="h-px w-full" />
+      <SiteFooter />
       <FloatingCTA />
     </>
   );
