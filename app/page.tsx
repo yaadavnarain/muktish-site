@@ -5,6 +5,7 @@ import { RiseBand } from "@/components/rise-band";
 import { HelpCards } from "@/components/help-cards";
 import { TikTokSection } from "@/components/tiktok-section";
 import { StorySection } from "@/components/story-section";
+import { Testimonials } from "@/components/testimonials";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
         <HelpCards />
         <TikTokSection />
         <StorySection />
+        <Testimonials />
       </main>
     </>
   );
