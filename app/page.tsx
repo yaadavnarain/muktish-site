@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { Hero } from "@/components/hero";
+import { StatsBand } from "@/components/stats-band";
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
       <SiteHeader />
       <main>
         <Hero />
+        <StatsBand />
       </main>
     </>
   );
