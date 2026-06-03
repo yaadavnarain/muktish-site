@@ -54,7 +54,7 @@ export function Hero() {
           initial={reduced ? false : { opacity: 0, y: 10 }}
           animate={reduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: DURATION, ease: PREMIUM_EASE, delay: 0 }}
-          className="text-[0.65rem] sm:text-xs tracking-[0.35em] uppercase text-ink/55"
+          className="text-[0.6rem] sm:text-xs tracking-[0.2em] sm:tracking-[0.35em] uppercase text-ink/55 px-2"
         >
           Entrepreneur · Content Creator · Numerologist
         </motion.p>

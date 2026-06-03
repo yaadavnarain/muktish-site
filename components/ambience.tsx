@@ -9,7 +9,7 @@ export function Ambience() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-50 hidden md:block"
+      className="pointer-events-none fixed inset-0 -z-50 hidden overflow-hidden md:block"
     >
       <motion.div
         className="absolute top-[10%] left-[12%] h-[28rem] w-[28rem] rounded-full"
