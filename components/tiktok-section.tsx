@@ -41,8 +41,19 @@ export function TikTokSection() {
   return (
     <section
       id="tiktok"
-      className="relative w-full bg-gradient-to-b from-bg via-[#080808] to-bg py-24 sm:py-32"
+      className="wash-amber relative isolate w-full overflow-hidden py-20 sm:py-28"
     >
+      <div aria-hidden className="absolute inset-0 -z-10 grain" />
+      {/* seam blends into neighbouring sections */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-bg to-transparent"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-bg to-transparent"
+      />
+
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
           <h2 className="heading text-center text-3xl sm:text-5xl gold-gradient-text">
@@ -73,11 +84,19 @@ export function TikTokSection() {
 function VideoCard({ video }: { video: Video }) {
   const reduced = useReducedMotion();
 
+  const handleMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+
   return (
     <a
       href={video.href}
       aria-label={`Watch TikTok video — ${video.views} views`}
-      className="group relative block overflow-hidden rounded-2xl ring-1 ring-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+      onMouseMove={handleMove}
+      className="group relative block overflow-hidden rounded-2xl ring-1 ring-white/5 transition-transform duration-300 ease-out hover:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
     >
       <div className="relative w-full" style={{ aspectRatio: "9 / 16" }}>
         {/* TODO: swap the gradient `background` for <Image src="/images/tiktok-N.jpg" .../> */}
@@ -131,6 +150,9 @@ function VideoCard({ video }: { video: Video }) {
             Views
           </span>
         </div>
+
+        {/* cursor-follow sheen */}
+        <span className="spotlight-sheen" aria-hidden />
       </div>
     </a>
   );

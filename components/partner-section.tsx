@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { Stagger, StaggerItem } from "@/components/motion-primitives";
+import { MagneticButton } from "@/components/magnetic-button";
 
 export function PartnerSection() {
   const reduced = useReducedMotion();
@@ -10,26 +11,26 @@ export function PartnerSection() {
   return (
     <section
       id="partner"
-      className="relative isolate w-full overflow-hidden py-28 sm:py-36"
+      className="relative isolate w-full overflow-hidden py-24 sm:py-32"
     >
-      {/* breathing radial glow */}
+      {/* breathing radial glow — stronger pulse */}
       <motion.div
         aria-hidden
         className="absolute inset-0 -z-20"
         animate={
           reduced
             ? undefined
-            : { opacity: [0.7, 1, 0.7], scale: [1, 1.04, 1] }
+            : { opacity: [0.65, 1, 0.65], scale: [1, 1.07, 1] }
         }
         transition={{ duration: 8, ease: "easeInOut", repeat: Infinity }}
         style={{
           background:
-            "radial-gradient(45% 55% at 50% 50%, rgba(245,200,66,0.16) 0%, rgba(10,10,10,0) 65%)",
+            "radial-gradient(45% 55% at 50% 50%, rgba(245,200,66,0.22) 0%, rgba(10,10,10,0) 65%)",
         }}
       />
       <div
         aria-hidden
-        className="absolute inset-0 -z-30 bg-gradient-to-b from-bg via-[#0c0c0c] to-bg"
+        className="absolute inset-0 -z-30 bg-[radial-gradient(50%_60%_at_50%_45%,rgba(52,211,153,0.05)_0%,rgba(10,10,10,0)_70%),linear-gradient(180deg,#0A0A0A_0%,#0c0c0c_50%,#0A0A0A_100%)]"
       />
       <div aria-hidden className="absolute inset-0 -z-10 grain" />
 
@@ -48,7 +49,7 @@ export function PartnerSection() {
         staggerChildren={0.08}
       >
         <StaggerItem>
-          <span className="inline-flex h-8 items-center rounded-full border border-gold/40 px-4 text-[0.6rem] tracking-[0.3em] uppercase text-gold/90">
+          <span className="gradient-border relative inline-flex h-8 items-center rounded-full bg-bg/40 px-4 text-[0.6rem] uppercase tracking-[0.3em] text-gold/90">
             Limited Time Opportunity
           </span>
         </StaggerItem>
@@ -88,13 +89,13 @@ export function PartnerSection() {
 
         <StaggerItem className="mt-10">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
-            <a
+            <MagneticButton
               href="https://wa.me/23055111364"
-              className="group inline-flex h-12 min-h-[44px] items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm sm:text-base font-semibold text-bg shadow-[0_10px_40px_-10px_rgba(245,200,66,0.6)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+              className="group inline-flex h-12 min-h-[44px] items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 sm:text-base"
             >
               Chat with me
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+            </MagneticButton>
             {/* TODO: replace # with the anonymous-message URL */}
             <a
               href="#"

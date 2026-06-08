@@ -1,4 +1,9 @@
-import { AnimatedCounter, Stagger, StaggerItem } from "@/components/motion-primitives";
+import {
+  AnimatedCounter,
+  Stagger,
+  StaggerItem,
+  StatUnderline,
+} from "@/components/motion-primitives";
 
 const stats = [
   { value: 10, suffix: "M+", label: "Views", decimals: 0 },
@@ -26,9 +31,10 @@ export function StatsBand() {
                 value={s.value}
                 suffix={s.suffix}
                 decimals={s.decimals}
-                duration={1.6}
+                duration={1.8}
               />
             </span>
+            <StatUnderline />
             <span className="text-[0.65rem] sm:text-xs tracking-[0.3em] uppercase text-ink/55">
               {s.label}
             </span>

@@ -35,10 +35,10 @@ export function Reveal({
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, scale: 0.96, filter: "blur(6px)" }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
       viewport={{ once: true, margin: ONCE_MARGIN }}
-      transition={{ duration: DURATION, ease: PREMIUM_EASE, delay }}
+      transition={{ duration: DURATION + 0.12, ease: PREMIUM_EASE, delay }}
     >
       {children}
     </MotionTag>
@@ -100,11 +100,13 @@ export function StaggerItem({ children, className }: StaggerItemProps) {
   }
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 16, scale: 0.96, filter: "blur(6px)" },
     show: {
       opacity: 1,
       y: 0,
-      transition: { duration: DURATION, ease: PREMIUM_EASE },
+      scale: 1,
+      filter: "blur(0px)",
+      transition: { duration: DURATION + 0.12, ease: PREMIUM_EASE },
     },
   };
 
@@ -135,7 +137,7 @@ export function AnimatedCounter({
   value,
   prefix = "",
   suffix = "",
-  duration = 1.6,
+  duration = 1.8,
   className,
   decimals = 0,
 }: AnimatedCounterProps) {
@@ -183,7 +185,8 @@ export function AnimatedCounter({
           }
         }
       },
-      { threshold: 0.4 },
+      // Fire once the figure is ~30% visible as the stats row scrolls in.
+      { threshold: 0.3 },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -195,5 +198,33 @@ export function AnimatedCounter({
       {display}
       {suffix}
     </span>
+  );
+}
+
+/**
+ * A thin gold underline that draws itself in (scaleX 0 → 1) when it scrolls
+ * into view. Used beneath each stat number. Renders static under reduced motion.
+ */
+export function StatUnderline() {
+  const reduced = useReducedMotion();
+
+  if (reduced) {
+    return (
+      <span
+        aria-hidden
+        className="block h-px w-10 bg-gradient-to-r from-transparent via-gold to-transparent"
+      />
+    );
+  }
+
+  return (
+    <motion.span
+      aria-hidden
+      className="block h-px w-10 origin-center bg-gradient-to-r from-transparent via-gold to-transparent"
+      initial={{ scaleX: 0, opacity: 0 }}
+      whileInView={{ scaleX: 1, opacity: 1 }}
+      viewport={{ once: true, margin: ONCE_MARGIN }}
+      transition={{ duration: 0.55, ease: PREMIUM_EASE, delay: 0.2 }}
+    />
   );
 }

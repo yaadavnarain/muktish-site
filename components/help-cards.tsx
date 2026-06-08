@@ -1,5 +1,6 @@
 import { Sprout, Briefcase, Trophy, ArrowRight, Lock } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion-primitives";
+import { SpotlightCard } from "@/components/spotlight-card";
 
 type CardData = {
   title: string;
@@ -36,8 +37,19 @@ export function HelpCards() {
   return (
     <section
       id="how-i-help"
-      className="relative w-full bg-gradient-to-b from-bg via-[#0c0c0c] to-bg py-24 sm:py-32"
+      className="wash-gold relative isolate w-full overflow-hidden py-20 sm:py-28"
     >
+      <div aria-hidden className="absolute inset-0 -z-10 grain" />
+      {/* seam blends into neighbouring sections */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-bg to-transparent"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-28 bg-gradient-to-t from-bg to-transparent"
+      />
+
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
           <h2 className="heading text-center text-3xl sm:text-5xl gold-gradient-text">
@@ -75,7 +87,7 @@ function Card({ data }: { data: CardData }) {
         aria-hidden
         className="absolute inset-0 rounded-3xl bg-[linear-gradient(140deg,rgba(245,200,66,0.35)_0%,rgba(245,200,66,0.05)_30%,rgba(255,255,255,0.04)_60%,rgba(245,200,66,0.25)_100%)] opacity-70 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity"
       />
-      <div className="relative flex h-full flex-col rounded-3xl bg-[#0e0e0e] p-7 sm:p-8">
+      <SpotlightCard className="relative flex h-full flex-col rounded-3xl bg-[#0e0e0e] p-7 sm:p-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/10 ring-1 ring-inset ring-gold/20 text-gold">
           <Icon className="h-5 w-5" strokeWidth={1.75} />
         </div>
@@ -103,7 +115,7 @@ function Card({ data }: { data: CardData }) {
             </a>
           ) : null}
         </div>
-      </div>
+      </SpotlightCard>
     </div>
   );
 }

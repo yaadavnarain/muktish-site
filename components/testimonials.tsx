@@ -47,7 +47,7 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="relative w-full bg-gradient-to-b from-bg via-[#080808] to-bg py-24 sm:py-32"
+      className="relative w-full bg-gradient-to-b from-bg via-[#080808] to-bg py-20 sm:py-28"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}

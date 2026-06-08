@@ -5,12 +5,12 @@ export function StorySection() {
   return (
     <section
       id="story"
-      className="relative isolate w-full overflow-hidden py-28 sm:py-40"
+      className="relative isolate w-full overflow-hidden py-24 sm:py-32"
     >
       {/* depth backdrop — radial mesh + grain, blended with neighbours */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-20 bg-[radial-gradient(45%_55%_at_25%_30%,rgba(245,200,66,0.10)_0%,rgba(10,10,10,0)_60%),radial-gradient(55%_60%_at_80%_70%,rgba(184,136,28,0.08)_0%,rgba(10,10,10,0)_65%),linear-gradient(180deg,#0A0A0A_0%,#0c0c0c_50%,#0A0A0A_100%)]"
+        className="absolute inset-0 -z-20 bg-[radial-gradient(45%_55%_at_25%_30%,rgba(245,200,66,0.12)_0%,rgba(10,10,10,0)_60%),radial-gradient(55%_60%_at_80%_70%,rgba(184,136,28,0.10)_0%,rgba(10,10,10,0)_65%),radial-gradient(60%_50%_at_50%_50%,rgba(52,211,153,0.05)_0%,rgba(10,10,10,0)_72%),linear-gradient(180deg,#0A0A0A_0%,#0c0c0c_50%,#0A0A0A_100%)]"
       />
       <div aria-hidden className="absolute inset-0 -z-10 grain" />
 

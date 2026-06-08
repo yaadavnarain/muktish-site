@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { MessageCircle } from "lucide-react";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -20,39 +24,62 @@ const socials = [
   { name: "X", href: "#", Icon: XIcon },
 ];
 
+/**
+ * Single sticky top navigation. Rendered once at the very top of the app
+ * (root layout), fixed to the viewport top. Transparent over the hero, gaining
+ * a subtle dark backdrop-blur background after the page scrolls past ~80px.
+ */
 export function SiteHeader() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-bg/70 border-b border-white/5">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-10 py-3">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 w-full transition-colors duration-300 ${
+        scrolled
+          ? "border-b border-white/10 bg-bg/70 backdrop-blur-md"
+          : "border-b border-transparent bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
         <Link
           href="/"
-          className="heading text-xl sm:text-2xl tracking-tight text-ink hover:text-gold transition-colors"
+          className="heading text-xl tracking-tight text-ink transition-colors hover:text-gold sm:text-2xl"
         >
           Muktish
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-3">
-          <nav aria-label="Social links" className="flex items-center gap-0.5 sm:gap-1">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <nav
+            aria-label="Social links"
+            className="hidden items-center gap-0.5 sm:flex sm:gap-1"
+          >
             {socials.map(({ name, href, Icon }) => (
               <a
                 key={name}
                 href={href}
                 aria-label={name}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink/70 hover:text-gold focus-visible:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 transition-colors"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink/70 transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
               >
                 <Icon className="h-4 w-4" />
               </a>
             ))}
           </nav>
 
-          <span className="hidden md:inline text-xs text-ink/50 whitespace-nowrap">
-            © 2026 Muktish
-          </span>
           <a
-            href="#"
-            className="hidden sm:inline text-xs text-ink/60 hover:text-gold transition-colors underline-offset-4 hover:underline whitespace-nowrap"
+            href="https://wa.me/23055111364"
+            className="btn-gold inline-flex h-10 min-h-[40px] items-center gap-2 rounded-full bg-gold pl-2.5 pr-4 text-xs font-semibold text-bg transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 sm:text-sm"
           >
-            Terms and Policies
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bg/15">
+              <MessageCircle className="h-3.5 w-3.5" />
+            </span>
+            Chat with me
           </a>
         </div>
       </div>

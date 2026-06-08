@@ -40,7 +40,7 @@ function Particles({ enabled }: { enabled: boolean }) {
       a: number;
     };
 
-    const PARTICLE_COUNT = window.matchMedia("(min-width: 1024px)").matches ? 28 : 18;
+    const PARTICLE_COUNT = window.matchMedia("(min-width: 1024px)").matches ? 44 : 26;
     let particles: Particle[] = [];
 
     const resize = () => {
@@ -60,8 +60,8 @@ function Particles({ enabled }: { enabled: boolean }) {
         y: Math.random() * rect.height,
         vx: 0.1 + Math.random() * 0.25,
         vy: -0.05 - Math.random() * 0.15,
-        r: 0.6 + Math.random() * 1.6,
-        a: 0.25 + Math.random() * 0.45,
+        r: 0.9 + Math.random() * 2.2,
+        a: 0.35 + Math.random() * 0.5,
       }));
     };
 
@@ -76,8 +76,8 @@ function Particles({ enabled }: { enabled: boolean }) {
         if (p.y < -4) p.y = rect.height + 4;
         ctx.beginPath();
         ctx.fillStyle = `rgba(245, 200, 66, ${p.a})`;
-        ctx.shadowColor = "rgba(245, 200, 66, 0.7)";
-        ctx.shadowBlur = 6;
+        ctx.shadowColor = "rgba(245, 200, 66, 0.8)";
+        ctx.shadowBlur = 9;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
@@ -138,16 +138,27 @@ export function RiseBand() {
     offset: ["start end", "end start"],
   });
   const wordY = useTransform(scrollYProgress, [0, 1], ["8%", "-8%"]);
+  const wordScale = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [0.94, 1.04, 0.96],
+  );
 
   return (
     <section
       ref={sectionRef}
-      className="relative isolate w-full overflow-hidden bg-gradient-to-b from-bg via-[#070707] to-bg py-28 sm:py-40"
+      className="relative isolate w-full overflow-hidden bg-gradient-to-b from-bg via-[#070707] to-bg py-24 sm:py-32"
     >
       {/* soft radial backdrop */}
       <div
         aria-hidden
         className="absolute inset-0 -z-20 bg-[radial-gradient(60%_50%_at_50%_50%,rgba(245,200,66,0.10)_0%,rgba(10,10,10,0)_70%)]"
+      />
+
+      {/* large soft gold glow behind the word */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-1/2 -z-10 h-[60vw] max-h-[34rem] w-[60vw] max-w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(245,200,66,0.28)_0%,rgba(10,10,10,0)_70%)] blur-2xl"
       />
 
       {/* particles — desktop only and motion-allowed */}
@@ -156,16 +167,16 @@ export function RiseBand() {
       </div>
 
       <motion.div
-        style={reduced ? undefined : { y: wordY }}
-        className="relative flex justify-center"
+        style={reduced ? undefined : { y: wordY, scale: wordScale }}
+        className="relative flex flex-col items-center justify-center"
       >
         <h2
           aria-label="RISE"
-          className="heading select-none leading-none"
+          className="heading relative select-none leading-none"
           style={{
             fontSize: "clamp(96px, 18vw, 220px)",
             letterSpacing: "-0.04em",
-            textShadow: "0 0 60px rgba(245,200,66,0.18)",
+            textShadow: "0 0 60px rgba(245,200,66,0.22)",
           }}
         >
           {LETTERS.map((letter, i) =>
@@ -194,7 +205,32 @@ export function RiseBand() {
             ),
           )}
         </h2>
+
+        {/* faint floor reflection — heavily blurred so it reads as a soft
+            glow, never as a legible second "RISE", and fades out fast. */}
+        <div
+          aria-hidden
+          className="heading gold-gradient-text pointer-events-none -mt-1 select-none leading-none opacity-[0.10]"
+          style={{
+            fontSize: "clamp(96px, 18vw, 220px)",
+            letterSpacing: "-0.04em",
+            transform: "scaleY(-1)",
+            filter: "blur(18px)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 32%)",
+            maskImage:
+              "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 32%)",
+          }}
+        >
+          RISE
+        </div>
       </motion.div>
+
+      {/* vignette beneath the word to seat the reflection */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-bg to-transparent"
+      />
 
       <motion.p
         initial={reduced ? false : { opacity: 0, y: 12 }}

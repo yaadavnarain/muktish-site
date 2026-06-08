@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Quicksand, Nunito } from "next/font/google";
 import "./globals.css";
+import { SiteHeader } from "@/components/site-header";
+import { ScrollProgress } from "@/components/scroll-progress";
 
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -32,7 +34,11 @@ export default function RootLayout({
       lang="en"
       className={`${quicksand.variable} ${nunito.variable} h-full`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <ScrollProgress />
+        <SiteHeader />
+        {children}
+      </body>
     </html>
   );
 }
