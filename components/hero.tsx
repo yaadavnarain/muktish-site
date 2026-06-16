@@ -108,14 +108,14 @@ export function Hero() {
           className="aurora-layer aurora-a absolute inset-[-15%]"
           style={{
             background:
-              "radial-gradient(38% 46% at 26% 32%, rgba(245,200,66,0.30) 0%, rgba(10,10,10,0) 60%), radial-gradient(42% 50% at 78% 28%, rgba(184,136,28,0.24) 0%, rgba(10,10,10,0) 62%)",
+              "radial-gradient(36% 44% at 28% 26%, rgba(245,200,66,0.16) 0%, rgba(10,10,10,0) 58%), radial-gradient(40% 48% at 76% 24%, rgba(184,136,28,0.12) 0%, rgba(10,10,10,0) 60%)",
           }}
         />
         <div
           className="aurora-layer aurora-b absolute inset-[-15%]"
           style={{
             background:
-              "radial-gradient(44% 50% at 60% 78%, rgba(52,211,153,0.12) 0%, rgba(10,10,10,0) 64%), radial-gradient(40% 48% at 18% 72%, rgba(245,200,66,0.16) 0%, rgba(10,10,10,0) 62%)",
+              "radial-gradient(38% 46% at 18% 74%, rgba(245,200,66,0.1) 0%, rgba(10,10,10,0) 62%)",
           }}
         />
       </div>

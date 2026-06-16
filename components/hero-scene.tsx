@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer, useTexture } from "@react-three/drei";
-import { EffectComposer, Bloom, DepthOfField } from "@react-three/postprocessing";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import * as THREE from "three";
 
@@ -255,17 +255,81 @@ function TransformFlash() {
   );
 }
 
+// Real portal interior: a swirling gold energy field with a dark central well.
+// Energy is multiplied by its own intensity so the dark areas add nothing
+// (pure black over the scene) — no flat, faded disc.
+const PORTAL_VERT = /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const PORTAL_FRAG = /* glsl */ `
+  precision highp float;
+  varying vec2 vUv;
+  uniform float uTime;
+  uniform float uFlash;
+  void main() {
+    vec2 p = (vUv - 0.5) * 2.0;        // -1..1
+    float r = length(p);
+    if (r > 1.0) discard;
+    float ang = atan(p.y, p.x);
+    float t = uTime;
+
+    // logarithmic-spiral vortex arms converging into the central well
+    float spiral = sin(ang * 5.0 + log(r + 0.15) * 6.0 - t * 1.4);
+    float vortex = pow(spiral * 0.5 + 0.5, 2.0);
+    // a second, faster counter-spiral adds depth/shimmer
+    float spiral2 = sin(ang * -3.0 + log(r + 0.2) * 9.0 + t * 1.0);
+    vortex = mix(vortex, pow(spiral2 * 0.5 + 0.5, 2.0), 0.4);
+
+    // radial profile: dark well in the centre, glowing toward the ring, fade at rim
+    float hole = smoothstep(0.04, 0.46, r);
+    float edge = 1.0 - smoothstep(0.82, 1.0, r);
+    float energy = hole * edge * mix(0.08, 1.0, vortex);
+
+    // a crisp bright inner-rim line just inside the torus
+    float rim = smoothstep(0.72, 0.82, r) * (1.0 - smoothstep(0.84, 0.96, r));
+    energy += rim * 0.7;
+    energy *= 0.9 + 0.1 * sin(t * 1.1);   // gentle pulse
+
+    vec3 deep = vec3(0.5, 0.28, 0.05);
+    vec3 hot  = vec3(1.0, 0.88, 0.5);
+    vec3 col = mix(deep, hot, clamp(energy, 0.0, 1.0)) * energy * 1.7;
+
+    // transform flash: a bright gold surge out of the well
+    float fl = uFlash * edge;
+    col += fl * vec3(1.0, 0.93, 0.66) * (1.0 - r * 0.4);
+
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
 function Portal() {
   const tiltRef = useRef<THREE.Group>(null);
-  const hotRef = useRef<THREE.Mesh>(null);
-  const goldRef = useRef<THREE.Mesh>(null);
+
+  const portalMat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: PORTAL_VERT,
+        fragmentShader: PORTAL_FRAG,
+        uniforms: { uTime: { value: 0 }, uFlash: { value: 0 } },
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        toneMapped: false,
+        side: THREE.DoubleSide,
+      }),
+    [],
+  );
+  useEffect(() => () => portalMat.dispose(), [portalMat]);
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     const phase = (t % CYCLE) / CYCLE;
     const d = Math.min(phase, 1 - phase);
     const flash = Math.exp(-((d / 0.05) ** 2));
-    const breathe = (Math.sin(t * 1.1) + 1) * 0.5; // 0..1, smooth
 
     // Held face-on with a fixed perspective tilt (appears wider than tall);
     // a tiny breathing sway only — it NEVER rotates edge-on.
@@ -273,19 +337,13 @@ function Portal() {
       tiltRef.current.rotation.x = 0.3 + Math.sin(t * 0.22) * 0.02;
       tiltRef.current.rotation.z = Math.sin(t * 0.16) * 0.015;
     }
-    // gold-centre core: crisp bright pulse + flash swell
-    if (hotRef.current) {
-      hotRef.current.scale.setScalar(1 + breathe * 0.07 + flash * 0.4);
-      (hotRef.current.material as THREE.MeshBasicMaterial).opacity = 0.55 + breathe * 0.15 + flash * 0.4;
-    }
-    if (goldRef.current) {
-      (goldRef.current.material as THREE.MeshBasicMaterial).opacity = 0.16 + breathe * 0.06 + flash * 0.25;
-    }
+    portalMat.uniforms.uTime.value = t;
+    portalMat.uniforms.uFlash.value = flash;
   });
 
   return (
     <group ref={tiltRef} rotation={[0.3, 0, 0]}>
-      {/* Solid emissive gold ring — crisp, bright, the bloom centrepiece */}
+      {/* Solid emissive gold ring — crisp, bright, the bloom centrepiece (kept) */}
       <mesh>
         <torusGeometry args={[1.95, 0.12, 20, 128]} />
         <meshStandardMaterial
@@ -298,15 +356,10 @@ function Portal() {
         />
       </mesh>
 
-      {/* compact gold mid glow inside the ring */}
-      <mesh ref={goldRef} position={[0, 0, -0.34]}>
-        <circleGeometry args={[0.9, 56]} />
-        <meshBasicMaterial color={GOLD} transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
-      </mesh>
-      {/* crisp hot gold centre */}
-      <mesh ref={hotRef} position={[0, 0, -0.24]}>
-        <circleGeometry args={[0.42, 48]} />
-        <meshBasicMaterial color={GOLD_WARM} transparent opacity={0.6} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
+      {/* Swirling energy portal interior with a dark central well — the silver
+          coin descends into it and the gold coins burst back out */}
+      <mesh position={[0, 0, -0.12]} material={portalMat}>
+        <circleGeometry args={[1.85, 96]} />
       </mesh>
 
       <TransformFlash />
@@ -339,13 +392,13 @@ function ReflectiveFloor() {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.75, 0]}>
       <circleGeometry args={[7, 72]} />
       <meshStandardMaterial
-        color="#0a0c0f"
+        color="#050608"
         metalness={1}
-        roughness={0.4}
-        envMapIntensity={0.75}
+        roughness={0.45}
+        envMapIntensity={0.35}
         transparent
         alphaMap={alphaMap}
-        opacity={0.5}
+        opacity={0.3}
         depthWrite={false}
       />
     </mesh>
@@ -384,7 +437,7 @@ function Scene() {
     <group ref={parallaxRef}>
       {/* Two-tone cinematic lighting: warm GOLD key one side, neutral cool rim
           the other, very low neutral ambient (clean near-black, no colour wash). */}
-      <ambientLight intensity={0.15} color="#23282f" />
+      <ambientLight intensity={0.09} color="#1c2026" />
       <directionalLight position={[4.5, 3, 4]} intensity={2.7} color="#FFE2A0" />
       {/* neutral cool rim/back light: lights the coins' far edges (cool sheen)
           and keeps them visible against the near-black background */}
@@ -392,8 +445,9 @@ function Scene() {
       {/* neutral fill from the camera side so the silver Rs 5 reads as real
           silver (counters the warm key + cool rim on its front face) */}
       <directionalLight position={[0, 1, 6]} intensity={0.85} color="#eaf0f7" />
-      {/* small gold accent behind the portal for local rim on nearby coins */}
-      <pointLight position={[0, 0, -1.2]} intensity={2.6} distance={8} decay={2} color={GOLD} />
+      {/* small gold accent behind the portal for local rim on nearby coins —
+          kept low so it doesn't spill a faded glow into the background */}
+      <pointLight position={[0, 0, -1.2]} intensity={1.2} distance={7} decay={2} color={GOLD} />
 
       {/* Self-contained dark studio environment (gold key panel + cool rim
           panel + gold catch-ring) — real reflections, two-tone sheen, clean
@@ -423,17 +477,17 @@ function Scene() {
 }
 
 function Effects() {
-  // Tight, controlled bloom: high threshold + small radius so ONLY the portal
-  // core, ring and transform flash glow — coins and background stay crisp and
-  // never blow out. Subtle DOF softens the deep background for cinematic depth.
+  // Tight, controlled bloom only (DOF removed for a crisper, faster, more
+  // striking image): high threshold + small radius so ONLY the portal ring,
+  // energy and transform flash glow — coins and background stay crisp and the
+  // background reads pure black.
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
-      <DepthOfField target={[0, 0, 0]} worldFocusRange={3.2} bokehScale={1.6} />
       <Bloom
         luminanceThreshold={0.9}
         luminanceSmoothing={0.1}
-        intensity={0.72}
-        radius={0.42}
+        intensity={0.6}
+        radius={0.28}
         mipmapBlur
       />
     </EffectComposer>
