@@ -7,9 +7,18 @@ import {
   useReducedMotion,
 } from "motion/react";
 import { ChevronDown, ArrowRight } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { Embers } from "@/components/embers";
 import { MagneticButton } from "@/components/magnetic-button";
+
+// The 3D portal scene is heavy (three.js + postprocessing). Load it lazily,
+// client-only (ssr: false) so it never blocks server render or LCP. While it
+// loads, the gold aurora gradient behind it serves as the poster/fallback.
+const HeroScene = dynamic(() => import("@/components/hero-scene"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const PREMIUM_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const DURATION = 0.42;
@@ -32,6 +41,18 @@ export function Hero() {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLElement | null>(null);
   const hasMedia = HERO_MEDIA !== null;
+
+  // Only mount the 3D Canvas on >=768px AND when motion is allowed. On phones
+  // (too heavy) or with prefers-reduced-motion, the static aurora stands in.
+  const [isDesktop, setIsDesktop] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  const enable3D = isDesktop && !reduced && !hasMedia;
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -99,10 +120,33 @@ export function Hero() {
         />
       </div>
 
-      {/* ---- Ember/particle field (desktop, motion-allowed; paused offscreen) ---- */}
-      <div className="absolute inset-0 -z-10 hidden md:block">
-        <Embers />
-      </div>
+      {/* ---- 3D portal scene — background layer, pointer-events:none so it never
+              blocks the CTAs. Aurora above stays visible as the poster until it
+              loads. Mounted only when enable3D is true. ---- */}
+      {enable3D && (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10"
+          >
+            <HeroScene />
+          </div>
+          {/* legibility scrim over the 3D — ~45–55% black, darker toward the
+              centred text so the headline, subline, CTAs and cue stay legible */}
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-[radial-gradient(115%_95%_at_50%_50%,rgba(0,0,0,0.52)_0%,rgba(0,0,0,0.44)_45%,rgba(0,0,0,0.5)_100%)]"
+          />
+        </>
+      )}
+
+      {/* ---- Ember/particle field — only when the 3D scene is NOT active, to keep
+              the composition calm. (Desktop + motion-allowed; paused offscreen.) ---- */}
+      {!enable3D && (
+        <div className="absolute inset-0 -z-10 hidden md:block">
+          <Embers />
+        </div>
+      )}
 
       {/* grain */}
       <div className="absolute inset-0 -z-10 grain" aria-hidden />
