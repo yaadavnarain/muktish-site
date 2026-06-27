@@ -28,7 +28,7 @@ const COIN_FALLBACK = "/coin/coin-fallback.jpg";
 // cool duotone, edge fade and a slow "breathing" drift so it reads as a living
 // presence behind the coin. Drop the photo at public/images/muktish.jpg to
 // activate it; until then the hero shows the gradient + coin only.
-const FOUNDER_IMG = "/images/muktish.jpg";
+const FOUNDER_IMG = "/images/muktish.png";
 
 /** Cheap one-shot WebGL capability + low-power probe (client only). */
 function detectCapability(): { webgl: boolean; lowPower: boolean } {
@@ -141,35 +141,34 @@ export function Hero() {
         {hasMedia && <div className="absolute inset-0 bg-black/55" />}
       </motion.div>
 
-      {/* ---- Founder portrait backdrop — a cool-duotone, edge-faded photo of
-              Muktish that slowly "breathes" so it reads as a living presence
-              behind the coin. Rendered as a background-image so a missing file
-              just shows nothing (no broken icon). ---- */}
+      {/* ---- Founder portrait backdrop — a dark, desaturated photo of Muktish
+              anchored to the right and dissolving into the black, with a slow
+              "breathing" drift so it reads as a living presence beside the coin.
+              Background-image so a missing file just shows nothing. ---- */}
       <motion.div
         aria-hidden
-        className="absolute inset-0 -z-25 hidden sm:block"
+        className="absolute inset-y-0 right-0 -z-25 hidden w-[78%] sm:block"
         style={{
           backgroundImage: `url(${FOUNDER_IMG})`,
           backgroundSize: "cover",
-          backgroundPosition: "center 28%",
-          opacity: 0.16,
-          filter: "grayscale(1) contrast(1.05) brightness(0.7)",
-          mixBlendMode: "luminosity",
+          backgroundPosition: "center 22%",
+          opacity: 0.32,
+          filter: "grayscale(1) contrast(1.12) brightness(0.42)",
           maskImage:
-            "radial-gradient(120% 110% at 62% 38%, #000 18%, transparent 72%)",
+            "radial-gradient(85% 120% at 80% 36%, #000 6%, transparent 62%)",
           WebkitMaskImage:
-            "radial-gradient(120% 110% at 62% 38%, #000 18%, transparent 72%)",
+            "radial-gradient(85% 120% at 80% 36%, #000 6%, transparent 62%)",
         }}
-        animate={reduced ? undefined : { scale: [1, 1.06, 1], x: [0, -8, 0] }}
-        transition={{ duration: 30, ease: "easeInOut", repeat: Infinity }}
+        animate={reduced ? undefined : { scale: [1, 1.05, 1], x: [0, -10, 0] }}
+        transition={{ duration: 32, ease: "easeInOut", repeat: Infinity }}
       />
-      {/* teal/blue wash tinting the portrait into the brand palette */}
+      {/* cool teal tint blending the portrait into the brand palette */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-25 hidden sm:block"
+        className="absolute inset-y-0 right-0 -z-25 hidden w-[78%] sm:block"
         style={{
           background:
-            "radial-gradient(120% 110% at 62% 38%, rgba(52,211,153,0.05) 0%, rgba(10,10,10,0) 60%)",
+            "radial-gradient(70% 100% at 80% 38%, rgba(52,211,153,0.12) 0%, rgba(10,10,10,0) 58%)",
           mixBlendMode: "screen",
         }}
       />
