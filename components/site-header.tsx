@@ -50,7 +50,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-10">
         <Link
           href="/"
-          className="heading text-xl tracking-tight text-ink transition-colors hover:text-gold sm:text-2xl"
+          className="heading text-xl tracking-tight text-ink transition-colors hover:text-mint sm:text-2xl"
         >
           Muktish
         </Link>
@@ -65,7 +65,7 @@ export function SiteHeader() {
                 key={name}
                 href={href}
                 aria-label={name}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink/70 transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink/70 transition-colors hover:text-mint focus-visible:text-mint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint/60"
               >
                 <Icon className="h-4 w-4" />
               </a>
@@ -74,7 +74,7 @@ export function SiteHeader() {
 
           <a
             href="https://wa.me/23055111364"
-            className="btn-gold inline-flex h-10 min-h-[40px] items-center gap-2 rounded-full bg-gold pl-2.5 pr-4 text-xs font-semibold text-bg transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 sm:text-sm"
+            className="btn-gold inline-flex h-10 min-h-[40px] items-center gap-2 rounded-full bg-gold pl-2.5 pr-4 text-xs font-semibold text-bg transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint/70 sm:text-sm"
           >
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-bg/15">
               <MessageCircle className="h-3.5 w-3.5" />

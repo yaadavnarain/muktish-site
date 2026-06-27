@@ -9,16 +9,48 @@ import {
 import { ChevronDown, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { Embers } from "@/components/embers";
 import { MagneticButton } from "@/components/magnetic-button";
 
-// The 3D portal scene is heavy (three.js + postprocessing). Load it lazily,
+// The 3D coin scene is heavy (three.js + postprocessing). Load it lazily,
 // client-only (ssr: false) so it never blocks server render or LCP. While it
 // loads, the gold aurora gradient behind it serves as the poster/fallback.
 const HeroScene = dynamic(() => import("@/components/hero-scene"), {
   ssr: false,
   loading: () => null,
 });
+
+// Static premium still of the settled gold coin — shown for reduced-motion,
+// no-WebGL and low-power devices (no live render, no spin).
+const COIN_FALLBACK = "/coin/coin-fallback.jpg";
+
+// Cinematic portrait of Muktish living quietly behind the hero. Used as a
+// CSS background-image (no broken-image icon if the file is absent) with a
+// cool duotone, edge fade and a slow "breathing" drift so it reads as a living
+// presence behind the coin. Drop the photo at public/images/muktish.jpg to
+// activate it; until then the hero shows the gradient + coin only.
+const FOUNDER_IMG = "/images/muktish.jpg";
+
+/** Cheap one-shot WebGL capability + low-power probe (client only). */
+function detectCapability(): { webgl: boolean; lowPower: boolean } {
+  if (typeof window === "undefined") return { webgl: false, lowPower: true };
+  let webgl = false;
+  try {
+    const c = document.createElement("canvas");
+    webgl = !!(
+      c.getContext("webgl2") ||
+      c.getContext("webgl") ||
+      c.getContext("experimental-webgl")
+    );
+  } catch {
+    webgl = false;
+  }
+  const nav = navigator as Navigator & { deviceMemory?: number };
+  const cores = nav.hardwareConcurrency ?? 8;
+  const mem = nav.deviceMemory ?? 8;
+  // Only the genuinely weak devices fall back; mid-range phones keep live 3D.
+  const lowPower = cores <= 2 || mem <= 2;
+  return { webgl, lowPower };
+}
 
 const PREMIUM_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const DURATION = 0.42;
@@ -42,8 +74,8 @@ export function Hero() {
   const ref = useRef<HTMLElement | null>(null);
   const hasMedia = HERO_MEDIA !== null;
 
-  // Only mount the 3D Canvas on >=768px AND when motion is allowed. On phones
-  // (too heavy) or with prefers-reduced-motion, the static aurora stands in.
+  // Desktop gets full 3D; phones get a lighter pass (capped DPR, fewer
+  // segments, no DOF). Width drives quality, not whether 3D runs at all.
   const [isDesktop, setIsDesktop] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -52,7 +84,18 @@ export function Hero() {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
-  const enable3D = isDesktop && !reduced && !hasMedia;
+
+  // Capability probe runs once on the client; until then we assume capable so
+  // we never flash the fallback on a machine that can render.
+  const [cap, setCap] = useState<{ webgl: boolean; lowPower: boolean }>({
+    webgl: true,
+    lowPower: false,
+  });
+  useEffect(() => setCap(detectCapability()), []);
+
+  const quality: "high" | "low" = isDesktop ? "high" : "low";
+  // Live 3D unless motion is disabled, WebGL is missing, or the device is weak.
+  const enable3D = !reduced && cap.webgl && !cap.lowPower;
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -98,6 +141,39 @@ export function Hero() {
         {hasMedia && <div className="absolute inset-0 bg-black/55" />}
       </motion.div>
 
+      {/* ---- Founder portrait backdrop — a cool-duotone, edge-faded photo of
+              Muktish that slowly "breathes" so it reads as a living presence
+              behind the coin. Rendered as a background-image so a missing file
+              just shows nothing (no broken icon). ---- */}
+      <motion.div
+        aria-hidden
+        className="absolute inset-0 -z-25 hidden sm:block"
+        style={{
+          backgroundImage: `url(${FOUNDER_IMG})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 28%",
+          opacity: 0.16,
+          filter: "grayscale(1) contrast(1.05) brightness(0.7)",
+          mixBlendMode: "luminosity",
+          maskImage:
+            "radial-gradient(120% 110% at 62% 38%, #000 18%, transparent 72%)",
+          WebkitMaskImage:
+            "radial-gradient(120% 110% at 62% 38%, #000 18%, transparent 72%)",
+        }}
+        animate={reduced ? undefined : { scale: [1, 1.06, 1], x: [0, -8, 0] }}
+        transition={{ duration: 30, ease: "easeInOut", repeat: Infinity }}
+      />
+      {/* teal/blue wash tinting the portrait into the brand palette */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-25 hidden sm:block"
+        style={{
+          background:
+            "radial-gradient(120% 110% at 62% 38%, rgba(52,211,153,0.05) 0%, rgba(10,10,10,0) 60%)",
+          mixBlendMode: "screen",
+        }}
+      />
+
       {/* ---- Aurora gradient mesh (two slow-drifting layers) ---- */}
       <div
         aria-hidden
@@ -120,32 +196,50 @@ export function Hero() {
         />
       </div>
 
-      {/* ---- 3D portal scene — background layer, pointer-events:none so it never
-              blocks the CTAs. Aurora above stays visible as the poster until it
-              loads. Mounted only when enable3D is true. ---- */}
-      {enable3D && (
+      {/* ---- 3D coin scene — centred behind the text, pointer-events:none so it
+              never blocks the CTAs. Aurora above stays visible as the poster
+              until it loads. Desktop = full quality, phones = lighter pass. ---- */}
+      {enable3D ? (
         <>
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10"
           >
-            <HeroScene />
+            <HeroScene quality={quality} />
           </div>
-          {/* legibility scrim over the 3D — ~45–55% black, darker toward the
-              centred text so the headline, subline, CTAs and cue stay legible */}
+          {/* legibility scrim over the coin — darker toward the centred text so
+              the headline, subline, CTAs and cue stay fully legible */}
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(115%_95%_at_50%_50%,rgba(0,0,0,0.52)_0%,rgba(0,0,0,0.44)_45%,rgba(0,0,0,0.5)_100%)]"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(120%_100%_at_50%_48%,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.3)_42%,rgba(0,0,0,0.5)_100%)]"
           />
         </>
-      )}
-
-      {/* ---- Ember/particle field — only when the 3D scene is NOT active, to keep
-              the composition calm. (Desktop + motion-allowed; paused offscreen.) ---- */}
-      {!enable3D && (
-        <div className="absolute inset-0 -z-10 hidden md:block">
-          <Embers />
-        </div>
+      ) : (
+        <>
+          {/* Static premium still of the gold coin — reduced-motion / no-WebGL /
+              low-power. Centred behind the text, no spin. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={COIN_FALLBACK}
+              alt=""
+              className="w-[min(70vw,420px)] max-w-[70vw]"
+              style={{
+                maskImage:
+                  "radial-gradient(circle at 50% 50%, #000 58%, transparent 75%)",
+                WebkitMaskImage:
+                  "radial-gradient(circle at 50% 50%, #000 58%, transparent 75%)",
+              }}
+            />
+          </div>
+          <div
+            aria-hidden
+            className="absolute inset-0 -z-10 bg-[radial-gradient(120%_100%_at_50%_48%,rgba(0,0,0,0.36)_0%,rgba(0,0,0,0.3)_42%,rgba(0,0,0,0.5)_100%)]"
+          />
+        </>
       )}
 
       {/* grain */}
@@ -182,11 +276,28 @@ export function Hero() {
             ease: PREMIUM_EASE,
             delay: STAGGER,
           }}
-          className="heading mt-6 text-balance text-4xl leading-[1.05] text-ink sm:text-6xl md:text-7xl"
+          className="heading mt-5 text-balance text-4xl leading-[1.05] text-ink sm:text-6xl md:text-7xl"
         >
           Guiding Youth to Live a{" "}
           <span className="gold-gradient-text">Fulfilled</span> Life.
         </motion.h1>
+
+        {/* The hook — the whole coin animation is this line. Kept prominent. */}
+        <motion.p
+          initial={reduced ? false : { opacity: 0, y: 14 }}
+          animate={reduced ? undefined : { opacity: 1, y: 0 }}
+          transition={{
+            duration: DURATION,
+            ease: PREMIUM_EASE,
+            delay: STAGGER * 1.6,
+          }}
+          className="heading mt-5 text-lg leading-snug text-ink/90 sm:text-2xl md:text-[1.7rem]"
+          style={{ textShadow: "0 1px 24px rgba(245,200,66,0.18)" }}
+        >
+          It started with a{" "}
+          <span className="gold-gradient-text">Rs 5 coin</span>. It doesn&rsquo;t
+          end there.
+        </motion.p>
 
         <motion.p
           initial={reduced ? false : { opacity: 0, y: 14 }}
@@ -194,9 +305,9 @@ export function Hero() {
           transition={{
             duration: DURATION,
             ease: PREMIUM_EASE,
-            delay: STAGGER * 2,
+            delay: STAGGER * 2.4,
           }}
-          className="mt-6 max-w-xl text-base text-ink/70 sm:text-lg"
+          className="mt-5 max-w-xl text-sm text-ink/65 sm:text-base"
         >
           A decade of entrepreneurship turned into a toolkit for the next
           generation — built for those who refuse to wait their turn.
@@ -210,11 +321,11 @@ export function Hero() {
             ease: PREMIUM_EASE,
             delay: STAGGER * 3,
           }}
-          className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:gap-7"
+          className="mt-8 flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:gap-7"
         >
           <MagneticButton
             href="https://wa.me/23055111364"
-            className="group inline-flex h-12 min-h-[44px] items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 sm:text-base"
+            className="group inline-flex h-12 min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-gold px-7 text-sm font-semibold text-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint/70 sm:w-auto sm:text-base"
           >
             Chat with me
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -223,7 +334,7 @@ export function Hero() {
           {/* TODO: replace # with the anonymous-message URL */}
           <a
             href="#"
-            className="inline-flex h-12 min-h-[44px] items-center rounded text-sm text-ink/80 underline-offset-[6px] transition-colors hover:text-gold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 sm:text-base"
+            className="inline-flex h-12 min-h-[44px] items-center rounded text-sm text-ink/80 underline-offset-[6px] transition-colors hover:text-mint hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint/60 sm:text-base"
           >
             Send me an anonymous message
           </a>

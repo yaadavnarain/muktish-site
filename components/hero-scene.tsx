@@ -1,8 +1,12 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Float, Lightformer, useTexture } from "@react-three/drei";
-import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { Environment, Lightformer, useTexture } from "@react-three/drei";
+import {
+  EffectComposer,
+  Bloom,
+  DepthOfField,
+} from "@react-three/postprocessing";
 import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import * as THREE from "three";
 
@@ -11,404 +15,260 @@ const GOLD_DEEP = "#B8881C";
 const GOLD_WARM = "#FFE6A8";
 const COOL = "#cfe0ff"; // neutral cool rim — pairs with the warm gold key (no teal)
 
-const RS5_FRONT = "/textures/rs5-front.png";
-const RS5_BACK = "/textures/rs5-back.png";
-// Preload the silver coin faces so the transform never stalls mid-cycle.
-useTexture.preload([RS5_FRONT, RS5_BACK]);
+// The real Mauritius Rs 5 coin (alpha-masked photo on a transparent bg).
+const RS5_BACK = "/coin/rs5-back.png";
+useTexture.preload([RS5_BACK]);
 
 /* Shared pointer target in normalized [-1, 1] space. A window-level listener
    feeds this so parallax still works even though the canvas wrapper has
    pointer-events: none (so it never blocks the buttons). */
 const pointer = { x: 0, y: 0 };
 
-/* ------------------------------------------------------------------ *
- * One seamless loop of length CYCLE. Everything is derived from
- * `phase` in [0, 1) and tuned so every animated quantity returns to
- * its start at the loop boundary => no visible jump.
- *
- *  phase 0.00  flash peaks (gold); the previous silver coin has
- *              vanished; gold coins burst from the portal core
- *  0.00–0.20   gold coins ease outward to layered orbits
- *  0.20–0.55   gold coins hold and drift on slow arcs at varied depths
- *  0.55–0.99   gold coins recede behind the portal and fade (staggered,
- *              so a few always remain while the next Rs 5 is arriving)
- *  0.06–1.00   a silver Rs 5 coin eases in spinning, reaching the portal
- *              centre exactly as phase wraps -> next flash
- * ------------------------------------------------------------------ */
-const CYCLE = 12; // seconds per cycle (calm, ~10–13s)
-const CENTER = new THREE.Vector3(0, 0, 0);
-const SILVER_START = new THREE.Vector3(1.05, 0.7, 3.7); // front, toward camera (kept in frame)
-
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
-const smoothstep = (a: number, b: number, x: number) => {
-  const t = clamp01((x - a) / (b - a));
-  return t * t * (3 - 2 * t);
-};
-// smoother (5th-order) easing for the long arcs — no linear ramps anywhere
+// 5th-order smootherstep — no linear ramps anywhere in the motion.
 const smootherstep = (a: number, b: number, x: number) => {
   const t = clamp01((x - a) / (b - a));
   return t * t * t * (t * (t * 6 - 15) + 10);
 };
 
-type GoldConfig = {
-  // anchor: a layered position around the portal (screen X/Y + depth Z).
-  // Kept within frame so coins never clip the screen edges.
-  anchor: [number, number, number];
-  size: number;
-  driftSpeed: number;
-  driftRadius: number;
-  phase0: number;
-  floatSpeed: number;
-  stagger: number; // small spawn delay so the burst isn't perfectly synced
-  fadeStart: number; // staggered recede start so a few coins always remain
-};
+type Quality = "high" | "low";
 
-const GOLD_COINS: GoldConfig[] = [
-  { anchor: [-2.3, 1.2, -0.5], size: 0.54, driftSpeed: 0.18, driftRadius: 0.22, phase0: 0.0, floatSpeed: 1.2, stagger: 0.0, fadeStart: 0.7 },
-  { anchor: [2.4, 0.9, -0.7], size: 0.5, driftSpeed: 0.15, driftRadius: 0.2, phase0: 1.1, floatSpeed: 1.5, stagger: 0.04, fadeStart: 0.86 },
-  { anchor: [-2.5, -0.95, 0.3], size: 0.52, driftSpeed: 0.2, driftRadius: 0.24, phase0: 2.3, floatSpeed: 1.1, stagger: 0.02, fadeStart: 0.66 },
-  { anchor: [2.1, -1.1, -0.4], size: 0.46, driftSpeed: 0.17, driftRadius: 0.2, phase0: 3.4, floatSpeed: 1.6, stagger: 0.06, fadeStart: 0.9 },
-  { anchor: [1.5, 0.25, 1.1], size: 0.4, driftSpeed: 0.14, driftRadius: 0.18, phase0: 4.6, floatSpeed: 1.3, stagger: 0.03, fadeStart: 0.76 },
-  { anchor: [-1.7, 0.1, 0.9], size: 0.44, driftSpeed: 0.19, driftRadius: 0.2, phase0: 5.5, floatSpeed: 1.0, stagger: 0.05, fadeStart: 0.81 },
-];
+/* ------------------------------------------------------------------ *
+ * The coin is a single physical disc: one face is the engraved silver
+ * Rs 5, the other is clean polished gold. It scales in showing silver,
+ * then spins forever on its Y axis — so the gold and the silver simply
+ * turn into view one after another. The rotation IS the transformation,
+ * so there is no material "swap" to glitch; it loops seamlessly.
+ * ------------------------------------------------------------------ */
+const INTRO = 1.3; // scale-in seconds
+const SPIN_SPEED = 0.9; // rad/s — calm, cinematic continuous spin
+const SILVER_OFFSET = Math.PI; // start with the silver face toward camera
 
-/* A reusable domed/beveled gold-coin profile (revolved by latheGeometry) so
-   the gold coins read as solid polished tokens with rims that catch light. */
-function useGoldGeometry() {
-  return useMemo(() => {
-    const pts = [
-      new THREE.Vector2(0.0, 0.085),
-      new THREE.Vector2(0.3, 0.08),
-      new THREE.Vector2(0.46, 0.064),
-      new THREE.Vector2(0.5, 0.03),
-      new THREE.Vector2(0.5, -0.03),
-      new THREE.Vector2(0.46, -0.064),
-      new THREE.Vector2(0.3, -0.08),
-      new THREE.Vector2(0.0, -0.085),
-    ];
-    const geo = new THREE.LatheGeometry(pts, 64);
-    geo.computeVertexNormals();
-    return geo;
-  }, []);
+/* The coin photo is a dark, warm, alpha-masked shot. We re-grade it into a
+   bright, neutral-cool silver with boosted contrast (a dark low-contrast albedo
+   washes flat once lit + tone-mapped), and derive a tangent-space normal map
+   from its luminance so the engraving catches the key/rim light — genuine
+   minted relief without shipping a second baked asset. Computed once. */
+function buildCoinMaps(
+  image: HTMLImageElement | HTMLCanvasElement,
+  strength: number,
+) {
+  const maxDim = 512;
+  const iw = (image as HTMLImageElement).naturalWidth || image.width;
+  const ih = (image as HTMLImageElement).naturalHeight || image.height;
+  const scale = Math.min(1, maxDim / Math.max(iw, ih));
+  const w = Math.max(1, Math.round(iw * scale));
+  const h = Math.max(1, Math.round(ih * scale));
+
+  const src = document.createElement("canvas");
+  src.width = w;
+  src.height = h;
+  const sctx = src.getContext("2d")!;
+  sctx.drawImage(image, 0, 0, w, h);
+
+  const img = sctx.getImageData(0, 0, w, h);
+  const data = img.data;
+  const lum = new Float32Array(w * h);
+  const clampB = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
+  for (let i = 0; i < w * h; i++) {
+    const a = data[i * 4 + 3];
+    const l =
+      (0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]) / 255;
+    lum[i] = a < 16 ? 0.6 : l; // flatten transparent bg for a smooth edge
+    if (a >= 16) {
+      const g = clamp01((l - 0.46) * 1.5 + 0.46 + 0.26);
+      data[i * 4] = clampB(g * 252);
+      data[i * 4 + 1] = clampB(g * 255);
+      data[i * 4 + 2] = clampB(g * 255 + 6);
+    }
+  }
+  sctx.putImageData(img, 0, 0);
+  const albedo = new THREE.CanvasTexture(src);
+  albedo.colorSpace = THREE.SRGBColorSpace;
+  albedo.needsUpdate = true;
+
+  const at = (x: number, y: number) => {
+    const cx = x < 0 ? 0 : x >= w ? w - 1 : x;
+    const cy = y < 0 ? 0 : y >= h ? h - 1 : y;
+    return lum[cy * w + cx];
+  };
+  const nrm = document.createElement("canvas");
+  nrm.width = w;
+  nrm.height = h;
+  const nctx = nrm.getContext("2d")!;
+  const nd = nctx.createImageData(w, h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const gx =
+        at(x - 1, y - 1) + 2 * at(x - 1, y) + at(x - 1, y + 1) -
+        at(x + 1, y - 1) - 2 * at(x + 1, y) - at(x + 1, y + 1);
+      const gy =
+        at(x - 1, y - 1) + 2 * at(x, y - 1) + at(x + 1, y - 1) -
+        at(x - 1, y + 1) - 2 * at(x, y + 1) - at(x + 1, y + 1);
+      const nx = -gx * strength;
+      const ny = -gy * strength;
+      const inv = 1 / Math.sqrt(nx * nx + ny * ny + 1);
+      const i = (y * w + x) * 4;
+      nd.data[i] = (nx * inv * 0.5 + 0.5) * 255;
+      nd.data[i + 1] = (ny * inv * 0.5 + 0.5) * 255;
+      nd.data[i + 2] = (inv * 0.5 + 0.5) * 255;
+      nd.data[i + 3] = 255;
+    }
+  }
+  nctx.putImageData(nd, 0, 0);
+  const normal = new THREE.CanvasTexture(nrm);
+  normal.needsUpdate = true;
+
+  return { albedo, normal };
 }
 
-function GoldCoin({ config, geometry }: { config: GoldConfig; geometry: THREE.BufferGeometry }) {
-  const orbitRef = useRef<THREE.Group>(null);
-  const matRef = useRef<THREE.MeshStandardMaterial>(null);
+function Coin({ quality }: { quality: Quality }) {
+  const groupRef = useRef<THREE.Group>(null); // scale-in + float
+  const spinRef = useRef<THREE.Group>(null); // continuous Y spin
+
+  const back = useTexture(RS5_BACK);
+  const maxAniso = useThree((s) => s.gl.capabilities.getMaxAnisotropy());
+  const segs = quality === "high" ? 96 : 48;
+
+  // Material array maps to the cylinder groups: [rim, top cap, bottom cap].
+  // top = clean polished gold, bottom = engraved silver Rs 5.
+  const { materials, disposables } = useMemo(() => {
+    const strength = quality === "high" ? 2.2 : 1.6;
+    const { albedo, normal } = buildCoinMaps(back.image as HTMLImageElement, strength);
+    // The silver lives on the BOTTOM cap; rotated to face the camera it would
+    // mirror, so flip U so the engraving reads correctly.
+    for (const t of [albedo, normal]) {
+      t.anisotropy = maxAniso;
+      t.wrapS = THREE.RepeatWrapping;
+      t.repeat.x = -1;
+      t.offset.x = 1;
+    }
+    const nScale = quality === "high" ? 1.2 : 0.95;
+
+    const rim = new THREE.MeshStandardMaterial({
+      color: "#c9a64a",
+      metalness: 0.95,
+      roughness: 0.34,
+      envMapIntensity: 0.7,
+    });
+    // Clean polished gold — smooth, no engraving. Slightly sub-mirror so the
+    // face stays a consistent rich gold across the full spin (a pure mirror
+    // reflects the dark env and reads as a dim ring at some angles).
+    const gold = new THREE.MeshPhysicalMaterial({
+      color: GOLD,
+      metalness: 0.86,
+      roughness: 0.3,
+      clearcoat: 1,
+      clearcoatRoughness: 0.32,
+      envMapIntensity: quality === "high" ? 1.7 : 1.4,
+      emissive: new THREE.Color(GOLD_DEEP),
+      emissiveIntensity: 0.1, // low — cinematic, not glowy
+    });
+    // Engraved silver — low metalness + env so the photo albedo and relief read
+    // as real silver, not a brassy mirror of the warm key.
+    const silver = new THREE.MeshStandardMaterial({
+      map: albedo,
+      normalMap: normal,
+      normalScale: new THREE.Vector2(nScale, nScale),
+      color: "#eef1f5",
+      metalness: 0.5,
+      roughness: 0.44,
+      envMapIntensity: 0.42,
+    });
+    return {
+      materials: [rim, gold, silver],
+      disposables: [rim, gold, silver, albedo, normal],
+    };
+  }, [back, maxAniso, quality]);
+
+  const goldMat = materials[1] as THREE.MeshPhysicalMaterial;
+
+  useEffect(
+    () => () => disposables.forEach((d) => d.dispose()),
+    [disposables],
+  );
 
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const phase = (t % CYCLE) / CYCLE;
-    // presence envelope: ease in after the flash, hold, then recede/fade
-    const env =
-      smootherstep(config.stagger, config.stagger + 0.2, phase) *
-      (1 - smootherstep(config.fadeStart, config.fadeStart + 0.14, phase));
 
-    const g = orbitRef.current;
-    if (g) {
-      const [ax, ay, az] = config.anchor;
-      const s = config.driftSpeed;
-      const r = config.driftRadius;
-      // smooth elliptical drift around the layered anchor
-      const tx = ax + Math.cos(t * s + config.phase0) * r;
-      const ty = ay + Math.sin(t * s * 0.8 + config.phase0) * r * 0.55;
-      const tz = az + Math.sin(t * s + config.phase0 * 1.3) * r * 0.7;
-      // ease from the portal centre outward by env: fans out, then recedes
-      g.position.set(tx * env, ty * env, tz * env);
-      g.scale.setScalar(config.size * env);
-      g.visible = env > 0.001;
-    }
-    if (matRef.current) matRef.current.opacity = env;
-  });
-
-  return (
-    <group ref={orbitRef} visible={false}>
-      <Float speed={config.floatSpeed} rotationIntensity={0.35} floatIntensity={0.5} floatingRange={[-0.08, 0.08]}>
-        {/* rotate the lathe (its faces point up/down by default) so the coin
-            face reads toward the camera; Float then tilts it gently */}
-        <mesh geometry={geometry} rotation={[Math.PI / 2, 0.2, 0]}>
-          {/* Polished gold PBR — low roughness for sharp specular + mirror-like
-              env reflections. Faint emissive keeps it reading gold off-key,
-              but stays well below the bloom threshold so it never blows out. */}
-          <meshStandardMaterial
-            ref={matRef}
-            color={GOLD}
-            metalness={1}
-            roughness={0.15}
-            envMapIntensity={1.7}
-            emissive={GOLD_DEEP}
-            emissiveIntensity={0.2}
-            transparent
-            opacity={0}
-          />
-        </mesh>
-      </Float>
-    </group>
-  );
-}
-
-function SilverCoin() {
-  const groupRef = useRef<THREE.Group>(null);
-  const spinRef = useRef<THREE.Group>(null);
-
-  const [front, back] = useTexture([RS5_FRONT, RS5_BACK]);
-  const maxAniso = useThree((s) => s.gl.capabilities.getMaxAnisotropy());
-
-  useEffect(() => {
-    for (const t of [front, back]) {
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = maxAniso;
-      t.needsUpdate = true;
-    }
-  }, [front, back, maxAniso]);
-
-  // material array maps to cylinder groups: [side(rim), top cap, bottom cap]
-  const materials = useMemo(() => {
-    const rim = new THREE.MeshStandardMaterial({
-      color: "#cdd1d8",
-      metalness: 1,
-      roughness: 0.28,
-      envMapIntensity: 1.2,
-    });
-    const top = new THREE.MeshStandardMaterial({
-      map: front,
-      color: "#eef0f3",
-      metalness: 0.5,
-      roughness: 0.36,
-      envMapIntensity: 0.7,
-    });
-    const bottom = new THREE.MeshStandardMaterial({
-      map: back,
-      color: "#eef0f3",
-      metalness: 0.5,
-      roughness: 0.36,
-      envMapIntensity: 0.7,
-    });
-    return [rim, top, bottom];
-  }, [front, back]);
-
-  useEffect(() => () => materials.forEach((m) => m.dispose()), [materials]);
-
-  useFrame((state, delta) => {
-    const phase = (state.clock.elapsedTime % CYCLE) / CYCLE;
+    // scale-in with a soft premium overshoot
+    const intro = smootherstep(0, INTRO, t);
+    const overshoot = 1 + 0.05 * Math.sin(intro * Math.PI) * (1 - intro);
     const g = groupRef.current;
     if (g) {
-      // ease from start to the portal centre across the cycle (no linear ramp)
-      const approach = smootherstep(0.06, 1.0, phase);
-      g.position.lerpVectors(SILVER_START, CENTER, approach);
-      // scale in on entry, vanish into the flash at the end
-      const scaleIn = smoothstep(0.06, 0.16, phase);
-      const scaleOut = 1 - smoothstep(0.9, 1.0, phase);
-      g.scale.setScalar(0.5 * scaleIn * scaleOut);
-      g.visible = phase > 0.05 && phase < 1.0;
+      g.scale.setScalar(intro * overshoot);
+      const floatAmt = smootherstep(INTRO, INTRO + 1.2, t);
+      g.position.y = Math.sin(t * 0.6) * 0.06 * floatAmt;
+      g.rotation.z = 0.1 + Math.sin(t * 0.45) * 0.02 * floatAmt;
+      // gentle pointer parallax (X tilt only; Y spin is owned by spinRef)
+      const tx = -pointer.y * 0.1;
+      g.rotation.x += (tx - g.rotation.x) * 0.03;
     }
-    // gentle, calm tumble so both engraved faces catch the light
-    if (spinRef.current) spinRef.current.rotation.y += delta * 1.05;
+
+    // continuous spin — silver first, easing up to a steady cinematic rate
+    if (spinRef.current) {
+      spinRef.current.rotation.y = SILVER_OFFSET + t * SPIN_SPEED;
+    }
+
+    // a slow, faint gold gleam as the face turns through the light
+    goldMat.emissiveIntensity = 0.08 + 0.05 * (0.5 + 0.5 * Math.sin(t * 0.5));
   });
 
   return (
-    <group ref={groupRef} visible={false}>
-      <group ref={spinRef} rotation={[0, 0, 0.16]}>
-        {/* thin, low-profile disc; caps rotated to face the camera */}
+    <group ref={groupRef} scale={0}>
+      <group ref={spinRef}>
         <mesh rotation={[Math.PI / 2, 0, 0]} material={materials}>
-          <cylinderGeometry args={[1, 1, 0.12, 64]} />
+          <cylinderGeometry args={[1, 1, 0.16, segs]} />
         </mesh>
       </group>
     </group>
   );
 }
 
-function TransformFlash() {
-  const goldRef = useRef<THREE.Mesh>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    const phase = (state.clock.elapsedTime % CYCLE) / CYCLE;
-    const d = Math.min(phase, 1 - phase); // distance to the loop boundary
-    const flash = Math.exp(-((d / 0.04) ** 2)); // brief, tight pulse at the transform
-    const gold = goldRef.current;
-    if (gold) {
-      gold.scale.setScalar(0.45 + flash * 2.0);
-      (gold.material as THREE.MeshBasicMaterial).opacity = flash * 0.9;
-      gold.visible = flash > 0.01;
-    }
-    const ring = ringRef.current;
-    if (ring) {
-      // a contained warm-gold shockwave ring just outside the core
-      ring.scale.setScalar(0.7 + flash * 1.6);
-      (ring.material as THREE.MeshBasicMaterial).opacity = flash * 0.4;
-      ring.visible = flash > 0.01;
-    }
-  });
-
-  return (
-    <group position={[0, 0, 0.06]}>
-      <mesh ref={goldRef} visible={false}>
-        <circleGeometry args={[1, 48]} />
-        <meshBasicMaterial color={GOLD_WARM} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
-      <mesh ref={ringRef} visible={false}>
-        <ringGeometry args={[0.82, 1.0, 64]} />
-        <meshBasicMaterial color={GOLD} transparent opacity={0} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} side={THREE.DoubleSide} />
-      </mesh>
-    </group>
-  );
-}
-
-// Real portal interior: a swirling gold energy field with a dark central well.
-// Energy is multiplied by its own intensity so the dark areas add nothing
-// (pure black over the scene) — no flat, faded disc.
-const PORTAL_VERT = /* glsl */ `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-const PORTAL_FRAG = /* glsl */ `
-  precision highp float;
-  varying vec2 vUv;
-  uniform float uTime;
-  uniform float uFlash;
-  void main() {
-    vec2 p = (vUv - 0.5) * 2.0;        // -1..1
-    float r = length(p);
-    if (r > 1.0) discard;
-    float ang = atan(p.y, p.x);
-    float t = uTime;
-
-    // logarithmic-spiral vortex arms converging into the central well
-    float spiral = sin(ang * 5.0 + log(r + 0.15) * 6.0 - t * 1.4);
-    float vortex = pow(spiral * 0.5 + 0.5, 2.0);
-    // a second, faster counter-spiral adds depth/shimmer
-    float spiral2 = sin(ang * -3.0 + log(r + 0.2) * 9.0 + t * 1.0);
-    vortex = mix(vortex, pow(spiral2 * 0.5 + 0.5, 2.0), 0.4);
-
-    // radial profile: dark well in the centre, glowing toward the ring, fade at rim
-    float hole = smoothstep(0.04, 0.46, r);
-    float edge = 1.0 - smoothstep(0.82, 1.0, r);
-    float energy = hole * edge * mix(0.08, 1.0, vortex);
-
-    // a crisp bright inner-rim line just inside the torus
-    float rim = smoothstep(0.72, 0.82, r) * (1.0 - smoothstep(0.84, 0.96, r));
-    energy += rim * 0.7;
-    energy *= 0.9 + 0.1 * sin(t * 1.1);   // gentle pulse
-
-    vec3 deep = vec3(0.5, 0.28, 0.05);
-    vec3 hot  = vec3(1.0, 0.88, 0.5);
-    vec3 col = mix(deep, hot, clamp(energy, 0.0, 1.0)) * energy * 1.7;
-
-    // transform flash: a bright gold surge out of the well
-    float fl = uFlash * edge;
-    col += fl * vec3(1.0, 0.93, 0.66) * (1.0 - r * 0.4);
-
-    gl_FragColor = vec4(col, 1.0);
-  }
-`;
-
-function Portal() {
-  const tiltRef = useRef<THREE.Group>(null);
-
-  const portalMat = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: PORTAL_VERT,
-        fragmentShader: PORTAL_FRAG,
-        uniforms: { uTime: { value: 0 }, uFlash: { value: 0 } },
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        toneMapped: false,
-        side: THREE.DoubleSide,
-      }),
-    [],
-  );
-  useEffect(() => () => portalMat.dispose(), [portalMat]);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    const phase = (t % CYCLE) / CYCLE;
-    const d = Math.min(phase, 1 - phase);
-    const flash = Math.exp(-((d / 0.05) ** 2));
-
-    // Held face-on with a fixed perspective tilt (appears wider than tall);
-    // a tiny breathing sway only — it NEVER rotates edge-on.
-    if (tiltRef.current) {
-      tiltRef.current.rotation.x = 0.3 + Math.sin(t * 0.22) * 0.02;
-      tiltRef.current.rotation.z = Math.sin(t * 0.16) * 0.015;
-    }
-    portalMat.uniforms.uTime.value = t;
-    portalMat.uniforms.uFlash.value = flash;
-  });
-
-  return (
-    <group ref={tiltRef} rotation={[0.3, 0, 0]}>
-      {/* Solid emissive gold ring — crisp, bright, the bloom centrepiece (kept) */}
-      <mesh>
-        <torusGeometry args={[1.95, 0.12, 20, 128]} />
-        <meshStandardMaterial
-          color={GOLD}
-          emissive={GOLD}
-          emissiveIntensity={2.4}
-          metalness={0.9}
-          roughness={0.22}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {/* Swirling energy portal interior with a dark central well — the silver
-          coin descends into it and the gold coins burst back out */}
-      <mesh position={[0, 0, -0.12]} material={portalMat}>
-        <circleGeometry args={[1.85, 96]} />
-      </mesh>
-
-      <TransformFlash />
-    </group>
-  );
-}
-
-function ReflectiveFloor() {
-  // A cheap reflective surface: a dark, smooth metal disc that mirrors the
-  // gold/cool environment (no real-time reflection pass). A radial alpha fades
-  // the edges so there's no hard horizon line over the dark hero.
-  const alphaMap = useMemo(() => {
+/* A soft, restrained gold glow behind the coin — the implied light source.
+   A radial gradient on an additive plane (no busy vortex), gentle pulse. */
+function PortalGlow() {
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const tex = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = c.height = 256;
     const ctx = c.getContext("2d")!;
     const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-    g.addColorStop(0, "rgba(255,255,255,1)");
-    g.addColorStop(0.6, "rgba(255,255,255,0.55)");
-    g.addColorStop(1, "rgba(255,255,255,0)");
+    g.addColorStop(0, "rgba(255,226,150,0.8)");
+    g.addColorStop(0.34, "rgba(245,200,66,0.32)");
+    g.addColorStop(0.64, "rgba(184,136,28,0.1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 256, 256);
-    const tex = new THREE.CanvasTexture(c);
-    tex.needsUpdate = true;
-    return tex;
+    const t = new THREE.CanvasTexture(c);
+    t.needsUpdate = true;
+    return t;
   }, []);
+  useEffect(() => () => tex.dispose(), [tex]);
 
-  useEffect(() => () => alphaMap.dispose(), [alphaMap]);
+  useFrame((state) => {
+    if (matRef.current)
+      matRef.current.opacity = 0.2 + 0.04 * Math.sin(state.clock.elapsedTime * 0.7);
+  });
 
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.75, 0]}>
-      <circleGeometry args={[7, 72]} />
-      <meshStandardMaterial
-        color="#050608"
-        metalness={1}
-        roughness={0.45}
-        envMapIntensity={0.35}
+    <mesh position={[0, 0, -1.9]} scale={5.2}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial
+        ref={matRef}
+        map={tex}
         transparent
-        alphaMap={alphaMap}
-        opacity={0.3}
+        opacity={0.2}
+        blending={THREE.AdditiveBlending}
         depthWrite={false}
+        toneMapped={false}
       />
     </mesh>
   );
 }
 
-function Scene() {
+function Scene({ quality }: { quality: Quality }) {
   const parallaxRef = useRef<THREE.Group>(null);
-  const coinOrbitRef = useRef<THREE.Group>(null);
-  const goldGeometry = useGoldGeometry();
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -419,82 +279,63 @@ function Scene() {
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
-  useFrame((_, delta) => {
-    // Coins orbit slowly around the VIEW axis (Z) — smooth arcs that never
-    // tip the portal edge-on (the portal is outside this group).
-    if (coinOrbitRef.current) coinOrbitRef.current.rotation.z += delta * 0.035;
-    // damped parallax — eases a few degrees toward the pointer
+  useFrame(() => {
     const p = parallaxRef.current;
     if (p) {
-      const ty = pointer.x * 0.22;
-      const tx = -pointer.y * 0.14;
+      const ty = pointer.x * 0.14;
       p.rotation.y += (ty - p.rotation.y) * 0.03;
-      p.rotation.x += (tx - p.rotation.x) * 0.03;
     }
   });
 
+  const envRes = quality === "high" ? 256 : 128;
+
   return (
     <group ref={parallaxRef}>
-      {/* Two-tone cinematic lighting: warm GOLD key one side, neutral cool rim
-          the other, very low neutral ambient (clean near-black, no colour wash). */}
-      <ambientLight intensity={0.09} color="#1c2026" />
-      <directionalLight position={[4.5, 3, 4]} intensity={2.7} color="#FFE2A0" />
-      {/* neutral cool rim/back light: lights the coins' far edges (cool sheen)
-          and keeps them visible against the near-black background */}
-      <directionalLight position={[-5, 1.5, -4]} intensity={1.05} color={COOL} />
-      {/* neutral fill from the camera side so the silver Rs 5 reads as real
-          silver (counters the warm key + cool rim on its front face) */}
-      <directionalLight position={[0, 1, 6]} intensity={0.85} color="#eaf0f7" />
-      {/* small gold accent behind the portal for local rim on nearby coins —
-          kept low so it doesn't spill a faded glow into the background */}
-      <pointLight position={[0, 0, -1.2]} intensity={1.2} distance={7} decay={2} color={GOLD} />
+      {/* Cinematic key + cool rim + neutral front fill so both the silver and
+          gold faces read well as the coin turns. */}
+      <ambientLight intensity={0.16} color="#20242b" />
+      <directionalLight position={[4.5, 3, 4]} intensity={1.4} color="#FFE2A0" />
+      <directionalLight position={[-5, 1.5, -4]} intensity={0.85} color={COOL} />
+      <directionalLight position={[0, 1.2, 6]} intensity={1.1} color="#f2f5fa" />
 
-      {/* Self-contained dark studio environment (gold key panel + cool rim
-          panel + gold catch-ring) — real reflections, two-tone sheen, clean
-          black background, and no runtime CDN dependency. */}
-      <Environment resolution={256} frames={1}>
+      {/* Dark studio env. A broad warm panel BEHIND the camera (+Z) gives the
+          polished gold something to reflect; kept moderate so it never washes
+          the silver or blows out into a glow. */}
+      <Environment resolution={envRes} frames={1}>
         <color attach="background" args={["#000000"]} />
-        <Lightformer form="rect" intensity={2.6} color={GOLD_WARM} position={[3.5, 2, 3]} scale={[7, 5, 1]} />
-        <Lightformer form="rect" intensity={1.1} color={COOL} position={[-4.5, 0, -3]} scale={[7, 5, 1]} />
-        <Lightformer form="ring" intensity={1.4} color={GOLD} position={[0, 0, -5]} scale={4} />
+        <Lightformer form="rect" intensity={1.1} color={GOLD_WARM} position={[0, 1, 8]} scale={[11, 8, 1]} />
+        <Lightformer form="rect" intensity={1.4} color={GOLD_WARM} position={[3.5, 2, 3]} scale={[6, 5, 1]} />
+        <Lightformer form="rect" intensity={0.8} color={COOL} position={[-4.5, 0, -3]} scale={[7, 5, 1]} />
       </Environment>
 
-      <ReflectiveFloor />
-      <Portal />
+      <PortalGlow />
 
-      <group ref={coinOrbitRef}>
-        {GOLD_COINS.map((c, i) => (
-          <GoldCoin key={i} config={c} geometry={goldGeometry} />
-        ))}
-      </group>
-
-      {/* Silver coin loads its textures lazily; the rest renders immediately. */}
       <Suspense fallback={null}>
-        <SilverCoin />
+        <Coin quality={quality} />
       </Suspense>
     </group>
   );
 }
 
-function Effects() {
-  // Tight, controlled bloom only (DOF removed for a crisper, faster, more
-  // striking image): high threshold + small radius so ONLY the portal ring,
-  // energy and transform flash glow — coins and background stay crisp and the
-  // background reads pure black.
+function Effects({ quality }: { quality: Quality }) {
+  // Restrained, controlled bloom only on the brightest highlights; subtle,
+  // desktop-only DOF for a premium fall-off (dropped on mobile for smoothness).
+  if (quality === "low") {
+    return (
+      <EffectComposer multisampling={0} enableNormalPass={false}>
+        <Bloom luminanceThreshold={1.0} luminanceSmoothing={0.14} intensity={0.28} radius={0.25} mipmapBlur />
+      </EffectComposer>
+    );
+  }
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
-      <Bloom
-        luminanceThreshold={0.9}
-        luminanceSmoothing={0.1}
-        intensity={0.6}
-        radius={0.28}
-        mipmapBlur
-      />
+      <Bloom luminanceThreshold={1.0} luminanceSmoothing={0.14} intensity={0.34} radius={0.28} mipmapBlur />
+      <DepthOfField focusDistance={0.0} focalLength={0.035} bokehScale={1.8} height={480} />
     </EffectComposer>
   );
 }
 
-export default function HeroScene() {
+export default function HeroScene({ quality = "high" }: { quality?: Quality }) {
   // Pause rendering when the hero is scrolled out of view.
   const containerRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(true);
@@ -509,23 +350,25 @@ export default function HeroScene() {
     return () => io.disconnect();
   }, []);
 
+  const dpr: [number, number] = quality === "high" ? [1, 2] : [1, 1.5];
+
   return (
     <div ref={containerRef} className="absolute inset-0">
       <Canvas
-        dpr={[1, 2]}
+        dpr={dpr}
         frameloop={active ? "always" : "never"}
-        camera={{ position: [0, 0.5, 9], fov: 40 }}
+        camera={{ position: [0, 0.2, 6.2], fov: 40 }}
         onCreated={({ camera }) => camera.lookAt(0, 0, 0)}
         gl={{
           alpha: true,
-          antialias: true,
+          antialias: quality === "high",
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
         }}
       >
         <Suspense fallback={null}>
-          <Scene />
-          <Effects />
+          <Scene quality={quality} />
+          <Effects quality={quality} />
         </Suspense>
       </Canvas>
     </div>

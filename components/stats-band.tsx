@@ -7,7 +7,7 @@ import {
 
 const stats = [
   { value: 10, suffix: "M+", label: "Views", decimals: 0 },
-  { value: 63.7, suffix: "K", label: "Followers", decimals: 1 },
+  { value: 63.7, suffix: "L", label: "Followers", decimals: 1 },
   { value: 100, suffix: "+", label: "Students Mentored", decimals: 0 },
 ];
 
