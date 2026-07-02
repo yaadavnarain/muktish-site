@@ -1,8 +1,7 @@
 import { RedesignHero } from "@/components/redesign/hero";
 import { Pathways } from "@/components/redesign/pathways";
 import { Marquee } from "@/components/redesign/marquee";
-import { StorySection } from "@/components/story-section";
-import { Testimonials } from "@/components/testimonials";
+import { About } from "@/components/redesign/about";
 import { Projects } from "@/components/redesign/projects";
 import { FloatingCTA } from "@/components/floating-cta";
 import { SiteFooter } from "@/components/site-footer";
@@ -21,8 +20,7 @@ export default function Home() {
         <div data-hero-end aria-hidden className="h-px w-full" />
         <Pathways />
         <Marquee />
-        <StorySection />
-        <Testimonials />
+        <About />
         <Projects />
       </main>
       {/* Floating CTA hides once the footer enters view. */}
