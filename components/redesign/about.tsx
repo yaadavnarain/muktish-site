@@ -88,18 +88,24 @@ function CharacterReveal({ text }: { text: string }) {
       {/* Animated copy — absolutely stacked over the placeholder. */}
       <span className="absolute inset-0 text-ink" aria-hidden>
         {words.map(({ word, start }, wi) => (
-          <span key={wi} className="inline-block whitespace-pre">
-            {word.split("").map((c, ci) => {
-              const abs = start + ci;
-              return (
-                <Char
-                  key={ci}
-                  char={c}
-                  progress={scrollYProgress}
-                  range={[abs / total, Math.min(1, (abs + 1) / total)]}
-                />
-              );
-            })}
+          // Inter-word spaces render as plain text BETWEEN the inline-block
+          // word spans so both layers share identical break opportunities
+          // (a space inside the block made this layer wrap earlier than the
+          // invisible placeholder).
+          <span key={wi}>
+            <span className="inline-block">
+              {word.split("").map((c, ci) => {
+                const abs = start + ci;
+                return (
+                  <Char
+                    key={ci}
+                    char={c}
+                    progress={scrollYProgress}
+                    range={[abs / total, Math.min(1, (abs + 1) / total)]}
+                  />
+                );
+              })}
+            </span>
             {wi < words.length - 1 ? " " : ""}
           </span>
         ))}

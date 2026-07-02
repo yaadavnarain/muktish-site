@@ -67,7 +67,6 @@ export function RedesignHero() {
             <img
               src={FOUNDER_IMG}
               alt=""
-              fetchPriority="high"
               className="h-full w-auto max-w-none object-contain opacity-25"
               style={{ filter: "grayscale(1) brightness(0.55) contrast(1.1)" }}
             />
