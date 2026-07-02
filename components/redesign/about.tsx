@@ -65,9 +65,18 @@ function CharacterReveal({ text }: { text: string }) {
     );
   }
 
-  const words = text.split(" ");
   const total = text.length;
-  let charIndex = 0;
+  // Pure derivation of each word's absolute start index (word starts include
+  // the +1 for the space that follows the previous word).
+  const words = text.split(" ").reduce<{ word: string; start: number }[]>(
+    (acc, word) => {
+      const prev = acc[acc.length - 1];
+      const start = prev ? prev.start + prev.word.length + 1 : 0;
+      acc.push({ word, start });
+      return acc;
+    },
+    [],
+  );
 
   return (
     <p
@@ -78,26 +87,22 @@ function CharacterReveal({ text }: { text: string }) {
       <span className="invisible">{text}</span>
       {/* Animated copy — absolutely stacked over the placeholder. */}
       <span className="absolute inset-0 text-ink" aria-hidden>
-        {words.map((word, wi) => {
-          const start = charIndex;
-          charIndex += word.length + 1; // +1 for the following space
-          return (
-            <span key={wi} className="inline-block whitespace-pre">
-              {word.split("").map((c, ci) => {
-                const abs = start + ci;
-                return (
-                  <Char
-                    key={ci}
-                    char={c}
-                    progress={scrollYProgress}
-                    range={[abs / total, Math.min(1, (abs + 1) / total)]}
-                  />
-                );
-              })}
-              {wi < words.length - 1 ? " " : ""}
-            </span>
-          );
-        })}
+        {words.map(({ word, start }, wi) => (
+          <span key={wi} className="inline-block whitespace-pre">
+            {word.split("").map((c, ci) => {
+              const abs = start + ci;
+              return (
+                <Char
+                  key={ci}
+                  char={c}
+                  progress={scrollYProgress}
+                  range={[abs / total, Math.min(1, (abs + 1) / total)]}
+                />
+              );
+            })}
+            {wi < words.length - 1 ? " " : ""}
+          </span>
+        ))}
       </span>
     </p>
   );

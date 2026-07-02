@@ -109,14 +109,24 @@ export function Marquee() {
     if (!section || !r1 || !r2) return;
 
     let raf = 0;
+    // Layout metrics are cached and refreshed only on resize, so the scroll
+    // frame is write-only (no forced layout per frame).
+    let sectionTop = 0;
+    let vh = 0;
+    let w1 = 0;
+    let w2 = 0;
+
+    const measure = () => {
+      sectionTop = section.offsetTop;
+      vh = window.innerHeight;
+      w1 = r1.scrollWidth / 3;
+      w2 = r2.scrollWidth / 3;
+    };
+
     const update = () => {
       raf = 0;
-      const sectionTop = section.offsetTop;
-      const offset =
-        (window.scrollY - sectionTop + window.innerHeight) * 0.3;
-
-      const w1 = r1.scrollWidth / 3;
-      const w2 = r2.scrollWidth / 3;
+      if (!w1 || !w2) return;
+      const offset = (window.scrollY - sectionTop + vh) * 0.3;
       // Wrap into [-setWidth, 0) so the tripled strip always covers the view.
       const x1 = -w1 + (((offset % w1) + w1) % w1); // drifts right
       const x2 = -(((offset % w2) + w2) % w2); // drifts left
@@ -127,13 +137,18 @@ export function Marquee() {
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update);
     };
+    const onResize = () => {
+      measure();
+      onScroll();
+    };
 
+    measure();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [reduced]);

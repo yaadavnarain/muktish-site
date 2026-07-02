@@ -44,7 +44,7 @@ export function RedesignHero() {
               <a
                 key={l.label}
                 href={l.href}
-                className="text-[0.6rem] uppercase tracking-wider text-ink/90 transition-opacity hover:opacity-70 sm:text-xs"
+                className="py-3 text-[0.7rem] uppercase tracking-wider text-ink/90 transition-opacity hover:opacity-70 sm:text-xs"
               >
                 {l.label}
               </a>
@@ -67,6 +67,7 @@ export function RedesignHero() {
             <img
               src={FOUNDER_IMG}
               alt=""
+              fetchPriority="high"
               className="h-full w-auto max-w-none object-contain opacity-25"
               style={{ filter: "grayscale(1) brightness(0.55) contrast(1.1)" }}
             />
@@ -96,6 +97,7 @@ export function RedesignHero() {
             <img
               src={COIN_IMG}
               alt="Mauritius Rs 5 coin"
+              fetchPriority="high"
               className="coin-turn w-[clamp(120px,20vw,260px)] drop-shadow-[0_20px_60px_rgba(245,200,66,0.25)]"
             />
           </Magnet>
@@ -130,7 +132,7 @@ export function RedesignHero() {
                   duration={1.8}
                 />
               </span>
-              <span className="text-[0.5rem] uppercase tracking-[0.25em] text-ink/55 sm:text-[0.65rem]">
+              <span className="text-[0.6rem] uppercase tracking-[0.2em] text-ink/55 sm:text-[0.65rem]">
                 {s.label}
               </span>
             </div>

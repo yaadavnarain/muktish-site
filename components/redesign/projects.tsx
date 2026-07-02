@@ -145,7 +145,9 @@ const projects: Project[] = [
   },
 ];
 
-const TOTAL = projects.length;
+// Static per-index depth classes so Tailwind can compile them (scale =
+// 1-(TOTAL-1-i)*0.03) — applied only at md+, where the sticky stack exists.
+const STACK_SCALE = ["md:scale-[0.94]", "md:scale-[0.97]", "md:scale-100"];
 
 /**
  * Sticky-stacking project cards: each card sticks below the one before it
@@ -166,12 +168,8 @@ export function Projects() {
           {projects.map((p, i) => (
             <div key={p.number} className="h-auto md:h-[85vh]">
               <div
-                className="md:sticky"
-                style={{
-                  top: `calc(6rem + ${i * 28}px)`,
-                  transform: `scale(${1 - (TOTAL - 1 - i) * 0.03})`,
-                  transformOrigin: "center top",
-                }}
+                className={`origin-top md:sticky ${STACK_SCALE[i] ?? "md:scale-100"}`}
+                style={{ top: `calc(6rem + ${i * 28}px)` }}
               >
                 <div className="mb-10 flex flex-col overflow-hidden rounded-[40px] border-2 border-white/15 bg-[#0d0d0d] sm:rounded-[50px] md:mb-0 md:h-[70vh] md:flex-row md:rounded-[60px]">
                   {/* Copy column */}
