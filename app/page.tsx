@@ -1,6 +1,6 @@
 import { RedesignHero } from "@/components/redesign/hero";
 import { Pathways } from "@/components/redesign/pathways";
-import { TikTokSection } from "@/components/tiktok-section";
+import { Marquee } from "@/components/redesign/marquee";
 import { StorySection } from "@/components/story-section";
 import { Testimonials } from "@/components/testimonials";
 import { Projects } from "@/components/redesign/projects";
@@ -20,7 +20,7 @@ export default function Home() {
         {/* Sentinel for the floating CTA — appears once this leaves the viewport. */}
         <div data-hero-end aria-hidden className="h-px w-full" />
         <Pathways />
-        <TikTokSection />
+        <Marquee />
         <StorySection />
         <Testimonials />
         <Projects />
