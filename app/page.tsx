@@ -1,26 +1,21 @@
 import { RedesignHero } from "@/components/redesign/hero";
-import { Pathways } from "@/components/redesign/pathways";
 import { Marquee } from "@/components/redesign/marquee";
 import { About } from "@/components/redesign/about";
+import { Pathways } from "@/components/redesign/pathways";
 import { Projects } from "@/components/redesign/projects";
 import { FloatingCTA } from "@/components/floating-cta";
 import { SiteFooter } from "@/components/site-footer";
-import { Ambience } from "@/components/ambience";
-import { PageBubbles } from "@/components/page-bubbles";
 
 export default function Home() {
   return (
     <>
-      <Ambience />
-      {/* Ambient gold bubbles across the whole page — fades in below the hero. */}
-      <PageBubbles />
       <main className="overflow-x-clip">
         <RedesignHero />
         {/* Sentinel for the floating CTA — appears once this leaves the viewport. */}
         <div data-hero-end aria-hidden className="h-px w-full" />
-        <Pathways />
         <Marquee />
         <About />
+        <Pathways />
         <Projects />
       </main>
       {/* Floating CTA hides once the footer enters view. */}

@@ -23,7 +23,10 @@ const socials = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative w-full border-t border-white/5 bg-gradient-to-b from-bg via-[#070707] to-black">
+    <footer
+      id="contact"
+      className="relative w-full border-t border-white/5 bg-gradient-to-b from-bg via-[#070707] to-black"
+    >
       <Stagger
         className="mx-auto grid max-w-6xl gap-12 px-6 py-16 sm:py-20 md:grid-cols-2"
         staggerChildren={0.08}
@@ -59,6 +62,15 @@ export function SiteFooter() {
                 +230 5511 1364
               </a>
               <span className="text-xs text-ink/45">(WhatsApp)</span>
+            </li>
+            <li>
+              {/* TODO: replace # with the anonymous-message URL */}
+              <a
+                href="#"
+                className="underline-offset-4 hover:text-gold hover:underline focus-visible:outline-none focus-visible:text-gold transition-colors"
+              >
+                Send me an anonymous message
+              </a>
             </li>
           </ul>
         </StaggerItem>
