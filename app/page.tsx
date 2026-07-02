@@ -3,8 +3,7 @@ import { Pathways } from "@/components/redesign/pathways";
 import { TikTokSection } from "@/components/tiktok-section";
 import { StorySection } from "@/components/story-section";
 import { Testimonials } from "@/components/testimonials";
-import { SplineSection } from "@/components/spline-section";
-import { PartnerSection } from "@/components/partner-section";
+import { Projects } from "@/components/redesign/projects";
 import { FloatingCTA } from "@/components/floating-cta";
 import { SiteFooter } from "@/components/site-footer";
 import { Ambience } from "@/components/ambience";
@@ -24,8 +23,7 @@ export default function Home() {
         <TikTokSection />
         <StorySection />
         <Testimonials />
-        <SplineSection />
-        <PartnerSection />
+        <Projects />
       </main>
       {/* Floating CTA hides once the footer enters view. */}
       <div data-footer-start aria-hidden className="h-px w-full" />
