@@ -3,11 +3,11 @@
 import { useRef } from "react";
 import {
   motion,
-  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { useReducedMotionSafe as useReducedMotion } from "@/lib/use-reduced-motion-safe";
 import { FadeIn } from "@/components/redesign/fade-in";
 import { ContactButton } from "@/components/redesign/contact-button";
 

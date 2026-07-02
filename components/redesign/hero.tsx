@@ -55,18 +55,26 @@ export function RedesignHero() {
 
       {/* ---- Center stage ---- */}
       <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center">
-        {/* Founder cut-out — muted, behind everything */}
+        {/* Founder cut-out — muted, behind everything. The photo is a plain
+            rectangle, so overlay gradients (NOT maskImage) dissolve its edges
+            into the page background. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 z-0 flex items-end justify-center"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={FOUNDER_IMG}
-            alt=""
-            className="h-[52svh] w-auto max-w-none object-contain opacity-25 sm:h-[62svh]"
-            style={{ filter: "grayscale(1) brightness(0.55) contrast(1.1)" }}
-          />
+          <div className="relative h-[58svh] sm:h-[62svh]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={FOUNDER_IMG}
+              alt=""
+              className="h-full w-auto max-w-none object-contain opacity-25"
+              style={{ filter: "grayscale(1) brightness(0.55) contrast(1.1)" }}
+            />
+            {/* edge dissolves — solid bg colour at the borders, clear centre */}
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,#0A0A0A_0%,rgba(10,10,10,0)_30%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,#0A0A0A_0%,rgba(10,10,10,0)_25%,rgba(10,10,10,0)_75%,#0A0A0A_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(0deg,#0A0A0A_0%,rgba(10,10,10,0)_22%)]" />
+          </div>
         </div>
 
         {/* Giant gradient heading */}

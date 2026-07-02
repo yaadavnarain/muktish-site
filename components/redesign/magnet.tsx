@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useReducedMotion } from "motion/react";
+import { useReducedMotionSafe as useReducedMotion } from "@/lib/use-reduced-motion-safe";
 
 type MagnetProps = {
   children: ReactNode;

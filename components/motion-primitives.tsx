@@ -2,9 +2,9 @@
 
 import {
   motion,
-  useReducedMotion,
   type Variants,
 } from "motion/react";
+import { useReducedMotionSafe as useReducedMotion } from "@/lib/use-reduced-motion-safe";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const PREMIUM_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
@@ -143,9 +143,10 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLSpanElement | null>(null);
-  const [display, setDisplay] = useState(() =>
-    reduced ? formatNumber(value, decimals) : formatNumber(0, decimals),
-  );
+  // Always seed with 0 so server and client first-render match (the reduced
+  // branch snaps to the final value in the effect below) — seeding with the
+  // final value caused a hydration text mismatch under prefers-reduced-motion.
+  const [display, setDisplay] = useState(() => formatNumber(0, decimals));
   const startedRef = useRef(false);
 
   useEffect(() => {

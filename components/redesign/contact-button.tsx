@@ -18,7 +18,7 @@ export function ContactButton({
   return (
     <a
       href={href}
-      className={`inline-flex h-12 min-h-[44px] items-center justify-center rounded-full px-8 text-xs font-semibold uppercase tracking-widest text-white transition-transform duration-200 ease-out hover:scale-[1.04] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${className}`}
+      className={`inline-flex h-12 min-h-[44px] items-center justify-center whitespace-nowrap rounded-full px-6 text-xs font-semibold uppercase tracking-widest text-white transition-transform duration-200 ease-out hover:scale-[1.04] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 sm:px-8 ${className}`}
       style={{
         background:
           "linear-gradient(123deg, #18011F 7%, #B600A8 37%, #7621B0 72%, #BE4C00 100%)",

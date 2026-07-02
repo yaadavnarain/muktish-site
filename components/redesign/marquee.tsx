@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useReducedMotion } from "motion/react";
+import { useReducedMotionSafe as useReducedMotion } from "@/lib/use-reduced-motion-safe";
 import { FadeIn } from "@/components/redesign/fade-in";
 
 type Tile = {

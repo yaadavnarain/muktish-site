@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useReducedMotionSafe as useReducedMotion } from "@/lib/use-reduced-motion-safe";
 import type { ReactNode } from "react";
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
