@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Quicksand, Nunito } from "next/font/google";
+import { Quicksand, Nunito, Kanit } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/site-header";
 import { ScrollProgress } from "@/components/scroll-progress";
 
 const quicksand = Quicksand({
@@ -15,6 +14,14 @@ const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
   weight: ["400"],
+  display: "swap",
+});
+
+// Display font for the redesign's giant headings only — body stays Nunito.
+const kanit = Kanit({
+  variable: "--font-kanit",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -32,11 +39,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${quicksand.variable} ${nunito.variable} h-full`}
+      className={`${quicksand.variable} ${nunito.variable} ${kanit.variable} h-full`}
     >
       <body className="min-h-full">
         <ScrollProgress />
-        <SiteHeader />
         {children}
       </body>
     </html>

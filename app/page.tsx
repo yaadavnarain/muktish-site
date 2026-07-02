@@ -1,5 +1,4 @@
-import { Hero } from "@/components/hero";
-import { StatsBand } from "@/components/stats-band";
+import { RedesignHero } from "@/components/redesign/hero";
 import { HelpCards } from "@/components/help-cards";
 import { TikTokSection } from "@/components/tiktok-section";
 import { StorySection } from "@/components/story-section";
@@ -17,11 +16,10 @@ export default function Home() {
       <Ambience />
       {/* Ambient gold bubbles across the whole page — fades in below the hero. */}
       <PageBubbles />
-      <main>
-        <Hero />
+      <main className="overflow-x-clip">
+        <RedesignHero />
         {/* Sentinel for the floating CTA — appears once this leaves the viewport. */}
         <div data-hero-end aria-hidden className="h-px w-full" />
-        <StatsBand />
         <HelpCards />
         <TikTokSection />
         <StorySection />

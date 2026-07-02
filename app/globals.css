@@ -10,6 +10,7 @@
 
   --font-heading: var(--font-quicksand), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-kanit), ui-sans-serif, system-ui, sans-serif;
 
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -82,6 +83,56 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* ===========================================================
+   redesign-motion tokens — premium portfolio motion language
+   =========================================================== */
+
+/* Display headings (Kanit) — hero/section mega-type only */
+.display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* Steel gradient for giant headings */
+.steel-gradient-text {
+  background: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Slow coin idle rotation (image fallback for the 3D coin) */
+@keyframes coin-turn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.coin-turn {
+  animation: coin-turn 24s linear infinite;
+  will-change: transform;
+}
+
+/* Gentle idle float — touch-device stand-in for the magnet effect */
+@keyframes idle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.idle-float {
+  animation: idle-float 5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .grain::before {
