@@ -1,0 +1,1228 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yealth
+ – Muktish</title>
+
+
+<style>html,body{margin:0;padding:0}</style>
+</head><body>
+
+      <div id="shopify-section-template--26406206636323__main" class="shopify-section">
+
+<style>
+  /* ============================================
+     YEALTH BRAND SYSTEM
+     Background: #0A0A0A | Gold: #F5C842
+     Mint: #34D399 | Text: #F7F7F7 | Muted: #A0A0A0
+     ============================================ */
+
+  :root {
+    --y-gold: #F5C842;
+    --y-mint: #34D399;
+    --y-black: #0A0A0A;
+    --y-white: #F7F7F7;
+    --y-grey: #A0A0A0;
+    --y-radius: 8px;
+    --y-font-display: 'Quicksand', sans-serif;
+    --y-font-body: 'Nunito', sans-serif;
+  }
+
+  .yealth-page * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .yealth-page {
+    background-color: var(--y-black);
+    color: var(--y-white);
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- Sticky Nav --- */
+
+  .y-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 24px;
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(245, 200, 66, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .y-nav-logo {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--y-gold);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+
+  .y-nav-logo sup {
+    font-size: 10px;
+    vertical-align: super;
+    margin-left: 1px;
+    color: var(--y-gold);
+  }
+
+  .y-nav-cta {
+    display: inline-block;
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--y-black);
+    background: var(--y-gold);
+    padding: 8px 16px;
+    border-radius: var(--y-radius);
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .y-nav-cta:hover {
+    background: #e6b93a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(245, 200, 66, 0.25);
+  }
+
+  /* --- Section Base --- */
+
+  .y-section {
+    padding: 56px 24px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .y-section--wide {
+    max-width: 960px;
+  }
+
+  .y-section--full {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* --- Typography --- */
+
+  .y-h1 {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--y-white);
+  }
+
+  .y-h2 {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--y-gold);
+  }
+
+  .y-h3 {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.2;
+    color: var(--y-gold);
+  }
+
+  .y-h4 {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.2;
+    color: var(--y-gold);
+  }
+
+  .y-body {
+    font-family: var(--y-font-body);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--y-white);
+  }
+
+  .y-body--muted {
+    color: var(--y-grey);
+  }
+
+  .y-label {
+    font-family: var(--y-font-display);
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--y-grey);
+  }
+
+  /* --- Buttons --- */
+
+  .y-btn {
+    display: inline-block;
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--y-black);
+    background: var(--y-gold);
+    padding: 16px 32px;
+    border-radius: var(--y-radius);
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.25s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .y-btn:hover {
+    background: #e6b93a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(245, 200, 66, 0.2);
+  }
+
+  .y-btn--secondary {
+    background: transparent;
+    color: var(--y-gold);
+    border: 1px solid var(--y-gold);
+  }
+
+  .y-btn--secondary:hover {
+    background: rgba(245, 200, 66, 0.08);
+    box-shadow: none;
+    transform: translateY(-1px);
+  }
+
+  .y-btn--small {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  /* --- Divider --- */
+
+  .y-divider {
+    width: 48px;
+    height: 2px;
+    background: var(--y-gold);
+    margin: 16px auto;
+    opacity: 0.3;
+  }
+
+  /* ============================================
+     SECTION 1: HERO
+     ============================================ */
+
+    .y-hero {
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .y-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center top, rgba(245, 200, 66, 0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .y-hero__image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--y-gold);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: yFadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .y-hero__headline {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--y-white);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: yFadeUp 0.8s ease 0.4s forwards;
+  }
+
+  .y-hero__headline span {
+    color: var(--y-gold);
+  }
+
+  .y-hero__sub {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--y-grey);
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: yFadeUp 0.8s ease 0.6s forwards;
+  }
+
+  .y-hero__cta {
+    opacity: 0;
+    animation: yFadeUp 0.8s ease 0.8s forwards;
+  }
+
+  /* ============================================
+     SECTION 2: THE PROBLEM
+     ============================================ */
+
+  .y-problem {
+    text-align: center;
+  }
+
+  .y-problem p {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--y-white);
+    margin-bottom: 24px;
+  }
+
+  .y-problem p:last-child {
+    margin-bottom: 0;
+    color: var(--y-gold);
+    font-weight: 600;
+    font-family: var(--y-font-display);
+    font-size: 18px;
+  }
+
+  /* ============================================
+     SECTION 3: THE SHIFT
+     ============================================ */
+
+  .y-shift {
+    text-align: center;
+  }
+
+  .y-shift p {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--y-white);
+    margin-bottom: 24px;
+  }
+
+  .y-shift p:first-child {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.3;
+    color: var(--y-gold);
+  }
+
+  .y-shift p:last-child {
+    margin-bottom: 0;
+    color: var(--y-grey);
+    font-size: 16px;
+  }
+
+  /* ============================================
+     SECTION 4: WHAT YOU GET
+     ============================================ */
+
+  .y-get__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .y-get__item {
+    padding: 32px;
+    background: rgba(245, 200, 66, 0.03);
+    border: 1px solid rgba(245, 200, 66, 0.08);
+    border-radius: var(--y-radius);
+    transition: all 0.3s ease;
+  }
+
+  .y-get__item:hover {
+    border-color: rgba(245, 200, 66, 0.15);
+    background: rgba(245, 200, 66, 0.05);
+  }
+
+  .y-get__item--hustle {
+    background: rgba(52, 211, 153, 0.03);
+    border-color: rgba(52, 211, 153, 0.08);
+  }
+
+  .y-get__item--hustle:hover {
+    border-color: rgba(52, 211, 153, 0.15);
+    background: rgba(52, 211, 153, 0.05);
+  }
+
+  .y-get__item--hustle .y-get__title {
+    color: var(--y-mint);
+  }
+
+  .y-get__icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .y-get__title {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--y-gold);
+    margin-bottom: 8px;
+  }
+
+  .y-get__desc {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--y-white);
+  }
+
+  /* ============================================
+     SECTION 5: THE PROOF
+     ============================================ */
+
+  .y-proof {
+    text-align: center;
+  }
+
+  .y-proof__video {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 48px;
+    border-radius: var(--y-radius);
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #111;
+  }
+
+  .y-proof__video iframe,
+  .y-proof__video video {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .y-proof__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .y-proof__stat-main {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--y-gold);
+    line-height: 1.3;
+  }
+
+  .y-proof__stat-sub {
+    font-family: var(--y-font-body);
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--y-white);
+    line-height: 1.3;
+  }
+
+  .y-proof__counter {
+    margin-top: 32px;
+    padding: 16px 32px;
+    background: rgba(245, 200, 66, 0.06);
+    border: 1px solid rgba(245, 200, 66, 0.12);
+    border-radius: var(--y-radius);
+    display: inline-block;
+  }
+
+  .y-proof__counter-text {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--y-white);
+  }
+
+  .y-proof__counter-text span {
+    color: var(--y-gold);
+    font-size: 22px;
+  }
+
+  /* ============================================
+     SECTION 6: HOW IT WORKS
+     ============================================ */
+
+  .y-how__title {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .y-how__steps {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .y-how__step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .y-how__step-num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--y-gold);
+    color: var(--y-black);
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .y-how__step-content {
+    flex: 1;
+  }
+
+  .y-how__step-title {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--y-white);
+    margin-bottom: 4px;
+  }
+
+  .y-how__step-desc {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    color: var(--y-grey);
+    line-height: 1.5;
+  }
+
+  /* ============================================
+     SECTION 7: THREE PATHS
+     ============================================ */
+
+  .y-paths__title {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .y-paths__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .y-paths__card {
+    padding: 32px;
+    border-radius: var(--y-radius);
+    border: 1px solid rgba(245, 200, 66, 0.1);
+    background: rgba(245, 200, 66, 0.02);
+    transition: all 0.3s ease;
+  }
+
+  .y-paths__card:hover {
+    border-color: rgba(245, 200, 66, 0.2);
+    background: rgba(245, 200, 66, 0.04);
+  }
+
+  .y-paths__card--primary {
+    border-color: rgba(245, 200, 66, 0.25);
+    background: rgba(245, 200, 66, 0.05);
+  }
+
+  .y-paths__card--secondary {
+    border-color: rgba(52, 211, 153, 0.1);
+    background: rgba(52, 211, 153, 0.02);
+  }
+
+  .y-paths__card--secondary:hover {
+    border-color: rgba(52, 211, 153, 0.2);
+    background: rgba(52, 211, 153, 0.04);
+  }
+
+  .y-paths__card-title {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--y-gold);
+    margin-bottom: 8px;
+  }
+
+  .y-paths__card--secondary .y-paths__card-title {
+    color: var(--y-mint);
+  }
+
+  .y-paths__card-desc {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    color: var(--y-white);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* ============================================
+     SECTION 8: FROM THE FOUNDER
+     ============================================ */
+
+  .y-founder {
+    text-align: center;
+    padding: 80px 24px;
+    position: relative;
+  }
+
+  .y-founder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(245, 200, 66, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .y-founder__image {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(245, 200, 66, 0.3);
+    margin-bottom: 32px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+  .y-founder__quote {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .y-founder__quote p {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--y-white);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .y-founder__quote p:first-child {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 20px;
+    font-style: normal;
+    color: var(--y-gold);
+    line-height: 1.4;
+  }
+
+  .y-founder__name {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--y-white);
+    margin-top: 32px;
+  }
+
+  .y-founder__role {
+    font-family: var(--y-font-body);
+    font-size: 14px;
+    color: var(--y-grey);
+    margin-top: 4px;
+  }
+
+  .y-founder__sig {
+    margin-top: 24px;
+    height: 40px;
+    opacity: 0.8;
+  }
+
+  /* ============================================
+     SECTION 9: QUICK FAQ
+     ============================================ */
+
+  .y-faq__title {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .y-faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .y-faq__item {
+    border-bottom: 1px solid rgba(245, 200, 66, 0.08);
+  }
+
+  .y-faq__item:first-child {
+    border-top: 1px solid rgba(245, 200, 66, 0.08);
+  }
+
+  .y-faq__question {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 24px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .y-faq__question-text {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--y-white);
+  }
+
+  .y-faq__question-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: var(--y-gold);
+    transition: transform 0.3s ease;
+  }
+
+  .y-faq__item.active .y-faq__question-icon {
+    transform: rotate(45deg);
+  }
+
+  .y-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+  }
+
+  .y-faq__item.active .y-faq__answer {
+    max-height: 300px;
+  }
+
+  .y-faq__answer-text {
+    font-family: var(--y-font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--y-grey);
+    padding-bottom: 24px;
+  }
+
+  /* ============================================
+     SECTION 10: FINAL CTA
+     ============================================ */
+
+  .y-final {
+    text-align: center;
+    padding: 96px 24px;
+    position: relative;
+  }
+
+  .y-final::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center bottom, rgba(245, 200, 66, 0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .y-final__headline {
+    font-family: var(--y-font-display);
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--y-gold);
+    margin-bottom: 32px;
+  }
+
+  .y-final__reassurance {
+    font-family: var(--y-font-body);
+    font-size: 14px;
+    color: var(--y-grey);
+    margin-top: 16px;
+  }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+
+  @keyframes yFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .y-reveal {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .y-reveal.visible {
+    opacity: 1;
+  }
+
+  /* ============================================
+     DESKTOP OVERRIDES (768px+)
+     ============================================ */
+
+  @media (min-width: 768px) {
+    .y-hero__headline {
+      font-size: 48px;
+    }
+
+    .y-hero__sub {
+      font-size: 18px;
+    }
+
+    .y-hero__image {
+      width: 140px;
+      height: 140px;
+    }
+
+    .y-h2 {
+      font-size: 36px;
+    }
+
+    .y-h3 {
+      font-size: 28px;
+    }
+
+    .y-section {
+      padding: 80px 48px;
+    }
+
+    .y-get__grid {
+      gap: 24px;
+    }
+
+    .y-paths__grid {
+      flex-direction: row;
+      gap: 16px;
+    }
+
+    .y-paths__card {
+      flex: 1;
+    }
+
+    .y-paths__card--primary {
+      flex: 1.2;
+    }
+
+    .y-proof__stat-main {
+      font-size: 32px;
+    }
+
+    .y-founder__quote p:first-child {
+      font-size: 24px;
+    }
+
+    .y-final__headline {
+      font-size: 36px;
+    }
+
+    .y-faq__question-text {
+      font-size: 18px;
+    }
+  }
+
+  /* ============================================
+     SCROLL SNAP (MOBILE)
+     ============================================ */
+
+  @media (max-width: 767px) {
+    .y-paths__grid {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .y-paths__card {
+      width: 100%;
+    }
+  }
+
+    .y-paths__card {
+      min-width: 280px;
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+  }
+</style>
+
+<!-- ==========================================
+     NAVIGATION
+     ========================================== -->
+
+<nav class="y-nav" id="y-nav">
+  <a href="/" class="y-nav-logo">
+  <img src="/pages/img/yealth-logo.png" alt="yealth" style="height: 71px; width: auto; display: block;">
+  </a>
+  <a href="https://muktish.com/invest" class="y-nav-cta">Secure my spot</a>
+</nav>
+
+<div class="yealth-page">
+
+  <!-- ==========================================
+       HERO
+       ========================================== -->
+
+  <section class="y-hero" id="hero">
+    
+      <img 
+        src="/pages/img/Muktish_Profile_Picture.png" 
+        alt="Muktish, Founder of yealth" 
+        class="y-hero__image"
+        loading="eager"
+      >
+    
+
+    <h1 class="y-hero__headline">
+      Become a farm owner for <span>Rs 1,288/mo.</span>
+    </h1>
+
+    <p class="y-hero__sub">
+      Monthly Passive Income. Own Assets. Retire Early. Generational Wealth.
+    </p>
+
+    <div class="y-hero__cta">
+      <a href="https://muktish.com/invest" class="y-btn">Secure my spot</a>
+    </div>
+  </section>
+
+  <div class="y-divider"></div>
+
+<!-- ==========================================
+       THE PROBLEM
+       ========================================== -->
+
+  <section class="y-section y-problem y-reveal">
+    <h2 class="y-h2" style="text-align: center; margin-bottom: 32px;">They sold you a lie called "work hard and you'll be fine."</h2>
+    <p>You wake up. You work. You pay bills. And somehow there's still nothing left.</p>
+    <p>You did what they told you. Study hard. Get a job. Be responsible. But the salary doesn't stretch, the prices keep climbing, and the future still feels like someone else's privilege.</p>
+    <p>You're not lazy. The system just wasn't built for you to win.</p>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       THE SHIFT
+       ========================================== -->
+
+  <section class="y-section y-shift y-reveal">
+    <p>What if you could own a real business for less than your monthly phone bill?</p>
+    <p>Not a side hustle. Not a scheme. A real farming business that earns for you every single month.</p>
+    <p>And if you need money now, not later, there are ways to start earning immediately while your farm grows.</p>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       WHAT YOU GET
+       ========================================== -->
+
+  <section class="y-section y-reveal">
+    <div class="y-get__grid">
+
+      <div class="y-get__item">
+        <span class="y-get__icon">&#127793;</span>
+        <h3 class="y-get__title">Your Farm</h3>
+        <p class="y-get__desc">You own it. We build it, operate it, and handle everything. You collect the income.</p>
+      </div>
+
+      <div class="y-get__item">
+        <span class="y-get__icon">&#129367;</span>
+        <h3 class="y-get__title">Your Salad</h3>
+        <p class="y-get__desc">Fresh, ready-to-eat salad delivered straight to your door. Every week. Clean, pure food from the farms.</p>
+      </div>
+
+      <div class="y-get__item">
+        <span class="y-get__icon">&#128176;</span>
+        <h3 class="y-get__title">Your Income</h3>
+        <p class="y-get__desc">Monthly passive income deposited into your account. Your farm works so you don't have to.</p>
+      </div>
+
+      <div class="y-get__item y-get__item--hustle">
+        <span class="y-get__icon">&#9889;</span>
+        <h3 class="y-get__title">Your Hustle</h3>
+        <p class="y-get__desc">Need income right now? Earn while your farm grows. Flexible shifts and creative work, on your terms.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       THE PROOF (no title)
+       ========================================== -->
+
+  <section class="y-section y-section--wide y-proof y-reveal">
+
+
+    <div class="y-proof__stats">
+      <p class="y-proof__stat-main">Rs 16M+ raised.</p>
+      <p class="y-proof__stat-sub">Financially backed by 150+ GenZ and Millennials.</p>
+    </div>
+
+    <div class="y-proof__counter">
+      <p class="y-proof__counter-text">
+        <span>4000+</span> people have already secured their spot.
+      </p>
+    </div>
+
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       HOW IT WORKS
+       ========================================== -->
+
+  <section class="y-section y-reveal">
+    <h2 class="y-h2 y-how__title">How It Works</h2>
+
+    <div class="y-how__steps">
+
+      <div class="y-how__step">
+        <div class="y-how__step-num">1</div>
+        <div class="y-how__step-content">
+          <h3 class="y-how__step-title">Secure your spot</h3>
+          <p class="y-how__step-desc">Fill in a short form. Free. No commitment. Takes 2 minutes.</p>
+        </div>
+      </div>
+
+      <div class="y-how__step">
+        <div class="y-how__step-num">2</div>
+        <div class="y-how__step-content">
+          <h3 class="y-how__step-title">Attend a live session</h3>
+          <p class="y-how__step-desc">Join a private webinar hosted by the founder. Get every detail. Ask every question.</p>
+        </div>
+      </div>
+
+      <div class="y-how__step">
+        <div class="y-how__step-num">3</div>
+        <div class="y-how__step-content">
+          <h3 class="y-how__step-title">Decide</h3>
+          <p class="y-how__step-desc">If it's for you, you're in. If not, no pressure. No follow-ups. No hard feelings.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       THREE PATHS
+       ========================================== -->
+
+  <section class="y-section y-section--wide y-reveal">
+    <div class="y-paths__grid">
+
+      <div class="y-paths__card y-paths__card--primary">
+        <h3 class="y-paths__card-title">Own a Farm</h3>
+        <p class="y-paths__card-desc">Start your farming business from Rs 1,288/mo. Build passive income and own assets.</p>
+        <a href="https://muktish.com/invest" class="y-btn y-btn--small">Secure my spot</a>
+      </div>
+
+      <div class="y-paths__card y-paths__card--secondary">
+        <h3 class="y-paths__card-title">Earn Now</h3>
+        <p class="y-paths__card-desc">Get paid for flexible part-time work. Weekly shifts that fit around your life.</p>
+        <a href="https://muktish.com/freelance" class="y-btn y-btn--small y-btn--secondary" style="border-color: var(--y-mint); color: var(--y-mint);">Apply now</a>
+      </div>
+
+      <div class="y-paths__card y-paths__card--secondary">
+        <h3 class="y-paths__card-title">Create & Earn</h3>
+        <p class="y-paths__card-desc">Make content. Build your audience. Get paid for it.</p>
+        <a href="https://muktish.com/content" class="y-btn y-btn--small y-btn--secondary" style="border-color: var(--y-mint); color: var(--y-mint);">Apply now</a>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       FROM THE FOUNDER
+       ========================================== -->
+
+  <section class="y-section y-founder y-reveal">
+    
+      <img 
+        src="/pages/img/Muktish_Navy_Blue_Polo_Transparent.png" 
+        alt="Muktish" 
+        class="y-founder__image"
+        loading="lazy"
+      >
+    
+
+    <div class="y-founder__quote">
+      <p>Building yealth is my life purpose. Not a business move. Not a side project. My life's work.</p>
+      <p>I built this because I got tired of watching young people in Mauritius be told to wait for a future that was never coming.</p>
+      <p>This is not a promise. This is a system. And I put my name, my face, and my reputation behind every part of it.</p>
+    </div>
+
+    <p class="y-founder__name">Muktish</p>
+    <p class="y-founder__role">Founder & CEO</p>
+
+    
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       QUICK FAQ
+       ========================================== -->
+
+  <section class="y-section y-reveal">
+    <h2 class="y-h2 y-faq__title">Quick FAQ</h2>
+
+    <div class="y-faq__list">
+
+      <div class="y-faq__item">
+        <button class="y-faq__question" onclick="this.parentElement.classList.toggle('active')">
+          <span class="y-faq__question-text">Is this real?</span>
+          <svg class="y-faq__question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="y-faq__answer">
+          <p class="y-faq__answer-text">Yes. We have a physical farm in Mauritius, Rs 16M+ raised, and 150+ GenZ and Millennials backing this financially. This is not a scheme. It's a registered business with a real address you can visit.</p>
+        </div>
+      </div>
+
+      <div class="y-faq__item">
+        <button class="y-faq__question" onclick="this.parentElement.classList.toggle('active')">
+          <span class="y-faq__question-text">Does it cost anything to secure my spot?</span>
+          <svg class="y-faq__question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="y-faq__answer">
+          <p class="y-faq__answer-text">No. The form is free. You're just expressing interest.</p>
+        </div>
+      </div>
+
+      <div class="y-faq__item">
+        <button class="y-faq__question" onclick="this.parentElement.classList.toggle('active')">
+          <span class="y-faq__question-text">What happens after I fill in the form?</span>
+          <svg class="y-faq__question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="y-faq__answer">
+          <p class="y-faq__answer-text">You'll be invited to a private live session hosted by the founder. Everything is explained there. No surprises.</p>
+        </div>
+      </div>
+
+      <div class="y-faq__item">
+        <button class="y-faq__question" onclick="this.parentElement.classList.toggle('active')">
+          <span class="y-faq__question-text">Do I need farming experience?</span>
+          <svg class="y-faq__question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="y-faq__answer">
+          <p class="y-faq__answer-text">Zero. We handle everything. You own the farm. We run it.</p>
+        </div>
+      </div>
+
+      <div class="y-faq__item">
+        <button class="y-faq__question" onclick="this.parentElement.classList.toggle('active')">
+          <span class="y-faq__question-text">Can I change my mind?</span>
+          <svg class="y-faq__question-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="y-faq__answer">
+          <p class="y-faq__answer-text">Yes. At any point. No pressure, no contracts until you decide you're in.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="y-divider"></div>
+
+  <!-- ==========================================
+       FINAL CTA
+       ========================================== -->
+
+  <section class="y-final y-reveal">
+    <h2 class="y-final__headline">Your farm is waiting.</h2>
+    <a href="https://muktish.com/invest" class="y-btn">Secure my spot</a>
+    <p class="y-final__reassurance">Free. No commitment. Takes 2 minutes.</p>
+  </section>
+
+</div>
+
+<!-- ==========================================
+     SCROLL REVEAL SCRIPT
+     ========================================== -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var reveals = document.querySelectorAll('.y-reveal');
+    
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    reveals.forEach(function(el) {
+      observer.observe(el);
+    });
+
+    // Navbar shadow on scroll
+    var nav = document.getElementById('y-nav');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 20) {
+        nav.style.boxShadow = '0 4px 24px rgba(0,0,0,0.4)';
+      } else {
+        nav.style.boxShadow = 'none';
+      }
+    });
+  });
+</script>
+
+
+</div>
+    
+</body></html>

@@ -1,0 +1,106 @@
+{
+  "rewrites": [
+    {
+      "source": "/pages/yealth",
+      "destination": "/pages/yealth.html"
+    },
+    {
+      "source": "/pages/aicertification",
+      "destination": "/pages/aicertification.html"
+    },
+    {
+      "source": "/pages/chinese-astrology-fire-horse-2026-forecast",
+      "destination": "/pages/chinese-astrology-fire-horse-2026-forecast.html"
+    },
+    {
+      "source": "/pages/relationship-via-the-lense-of-astrology-venus-mars",
+      "destination": "/pages/relationship-via-the-lense-of-astrology-venus-mars.html"
+    },
+    {
+      "source": "/pages/life-path-calculator",
+      "destination": "/pages/life-path-calculator.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/preseedstakeholderupdateq2part12026",
+      "destination": "https://tally.so/r/q4qx59",
+      "permanent": true
+    },
+    {
+      "source": "/startup",
+      "destination": "https://tally.so/r/VL4a6N",
+      "permanent": true
+    },
+    {
+      "source": "/preseedstakeholderupdateq12026",
+      "destination": "https://tally.so/r/BzLPAe",
+      "permanent": true
+    },
+    {
+      "source": "/yealth",
+      "destination": "/pages/yealth",
+      "permanent": true
+    },
+    {
+      "source": "/customersuccessitofficerquestionnaire",
+      "destination": "https://tally.so/r/vGLd9l",
+      "permanent": true
+    },
+    {
+      "source": "/aicertification",
+      "destination": "/pages/aicertification",
+      "permanent": true
+    },
+    {
+      "source": "/shareholderbusinessprofile",
+      "destination": "https://tally.so/r/q4O1V7",
+      "permanent": true
+    },
+    {
+      "source": "/preseedinvestment1",
+      "destination": "https://tally.so/r/2E48KV",
+      "permanent": true
+    },
+    {
+      "source": "/content",
+      "destination": "https://tally.so/r/EkX2l2",
+      "permanent": true
+    },
+    {
+      "source": "/invest",
+      "destination": "https://tally.so/r/wAM4kk",
+      "permanent": true
+    },
+    {
+      "source": "/freelance",
+      "destination": "https://tally.so/r/687RBo",
+      "permanent": true
+    },
+    {
+      "source": "/firehorse",
+      "destination": "/pages/chinese-astrology-fire-horse-2026-forecast",
+      "permanent": true
+    },
+    {
+      "source": "/chinesehoroscope",
+      "destination": "/pages/chinese-astrology-fire-horse-2026-forecast",
+      "permanent": true
+    },
+    {
+      "source": "/birthchart",
+      "destination": "https://masteringthezodiac.com/sidereal-birth-chart-calculator",
+      "permanent": true
+    },
+    {
+      "source": "/stvalentin2026",
+      "destination": "/pages/relationship-via-the-lense-of-astrology-venus-mars",
+      "permanent": true
+    },
+    {
+      "source": "/lifepath",
+      "destination": "/pages/life-path-calculator",
+      "permanent": true
+    }
+  ]
+}
